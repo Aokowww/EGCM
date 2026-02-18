@@ -1,0 +1,24 @@
+# R / RStudio
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+*.Rproj
+
+# renv
+renv/library/
+renv/python/
+
+# Outputs
+results/
+plots/
+figures/
+*.RData
+*.rds
+*.csv
+*.tsv
+*.parquet
+
+# OS
+.DS_Store
+Thumbs.db

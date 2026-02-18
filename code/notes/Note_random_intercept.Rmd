@@ -1,0 +1,754 @@
+---
+title: "data_with_random_intercept"
+output:
+  html_document: default
+  pdf_document: default
+date: "2024-02-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Library
+```{r library}
+library(MASS) # For mvrnorm to generate multivariate normal distributions
+library(GeneralisedCovarianceMeasure) # Generalised Covariance Measure (GCM)
+library(CondIndTests) # kernel-based CI test (KCI)
+library(scales)
+library(Matrix)
+library(MASS)
+library(lme4)
+library(mgcv)
+library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(gamm4)
+library(lmtest)
+```
+
+# Linear model with random intercept
+
+X_it= 1.5*Z_t +alpha_i+e_it
+Y_it= 1.1*Z_t +beta_i+e_it
+
+```{r dataset of linear case}
+set.seed(123)
+
+b <- 0
+
+n_subjects <- 20
+n_measurements <- 200
+
+cor_matrix <- matrix(0.5, nrow = n_measurements, ncol = n_measurements)
+diag(cor_matrix) <- 1
+
+data <- data.frame(subject = rep(1:n_subjects, each = n_measurements),
+                   measurement = rep(1:n_measurements, times = n_subjects),
+                   Z = NA)
+
+# Generate Z values
+for (i in 1:n_subjects) {
+  data$Z[data$subject == i] <- mvrnorm(n = 1, mu = rep(0, n_measurements), Sigma = cor_matrix)
+}
+
+# Initialize X and Y with NA values
+data$X <- NA
+data$Y <- NA
+
+# Function to calculate X based on current and previous Z
+calculate_X_Y <- function(Z_current, Z_previous, is_X = TRUE) {
+  # Handle the case for the first measurement
+  Z_previous <- ifelse(is.na(Z_previous), Z_current, Z_previous)
+  
+  if(is_X) {
+      return(Z_current)
+    # return(5 * sin((Z_current + Z_previous)^2 + 10))
+  } else {
+    return(Z_current)
+    #return((Z_current + Z_previous)^2)
+  }
+}
+
+
+alpha <- rnorm(n_subjects,sd=5)
+alpha <- rep(alpha, each = n_measurements)
+
+beta <- rnorm(n_subjects,sd=5)
+beta <- rep(beta, each = n_measurements)
+
+# Iterate through data to calculate X and Y based on Z_t and Z_t-1
+for(i in 1:nrow(data)) {
+  Z_current <- data$Z[i]
+  Z_previous <- ifelse(data$measurement[i] == 1, NA, data$Z[i-1])
+  data$X[i] <- calculate_X_Y(Z_current,0, TRUE) + alpha[i] + rnorm(1, mean = 0, sd = 1)
+  data$Y[i] <- calculate_X_Y(Z_current,0, FALSE) + beta[i] + b*data$X[i]  +rnorm(1, mean = 0, sd = 1)
+}
+```
+
+# Check data structure
+```{r 1Plot of X,Y on Z}
+library(ggplot2)
+
+
+ggplot(data, aes(x = Z, y = X)) +
+  geom_point(aes(color = Z), alpha = 0.6) +  
+  scale_color_gradient(low = "blue", high = "red") + 
+  theme_minimal() +  
+  labs(title = "Relationship between Z and X",
+       x = "Z",
+       y = "X") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+ggplot(data, aes(x = Z, y = Y)) +
+  geom_point(aes(color = Z), alpha = 0.6) +  
+  scale_color_gradient(low = "green", high = "yellow") + 
+  theme_minimal() +  
+  labs(title = "Relationship between Z and Y",
+       x = "Z",
+       y = "Y") +
+  theme(plot.title = element_text(hjust = 0.5))  
+```
+```{r Average X and Y vs. Average Z}
+# Use tidyverse to calculate averages and plot
+data %>%
+  group_by(subject) %>%
+  summarise(average_X = mean(X, na.rm = TRUE), average_Z = mean(Z, na.rm = TRUE), average_Y = mean(Y, na.rm = TRUE)) %>%
+  ggplot() +
+  geom_point(aes(x = average_Z, y = average_X), color = "blue") +
+  geom_point(aes(x = average_Z, y = average_Y), color = "red") +
+  labs(x = "Average Z", y = "Average", title = "Average X and Y vs. Average Z for each subject") +
+  theme_minimal() +
+  scale_y_continuous(name = "Average X", sec.axis = sec_axis(~., name = "Average Y"))
+
+```
+```{r Relationship between Z and Y for Selected Subjects}
+library(ggplot2)
+
+set.seed(123)
+selected_subjects <- sample(unique(data$subject), 10)
+selected_data <- data[data$subject %in% selected_subjects,]
+
+
+ggplot(selected_data, aes(x = Z, y = X, group = subject, color = as.factor(subject))) +
+  geom_line() +  
+  geom_point() +  
+  theme_minimal() +
+  labs(title = "Relationship between Z and X for Selected Subjects",
+       x = "Z",
+       y = "X",
+       color = "Subject") +
+  scale_color_viridis_d(name = "Subject ID") +
+  theme(legend.title = element_text(size = 12), legend.text = element_text(size = 10))
+
+ggplot(selected_data, aes(x = Z, y = Y, group = subject, color = as.factor(subject))) +
+  geom_line() +  
+  geom_point() +  
+  theme_minimal() +
+  labs(title = "Relationship between Z and Y for Selected Subjects",
+       x = "Z",
+       y = "Y",
+       color = "Subject") +
+  scale_color_viridis_d(name = "Subject ID") +
+  theme(legend.title = element_text(size = 12), legend.text = element_text(size = 10))
+
+```
+
+# Generalized additive regression
+
+```{r Generalized additive regression}
+gam_model_x <- gam(X ~ s(Z), data = data, method = "GCV.Cp")
+
+
+gam_model_y <- gam(Y ~ s(Z), data = data, method = "GCV.Cp")
+
+
+ggplot(data, aes(x = Z, y = X)) +
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "gam", formula = y ~ s(x), method.args = list(family = "gaussian")) +
+  ggtitle("Relationship between X and Z") +
+  theme_minimal()
+
+
+ggplot(data, aes(x = Z, y = Y)) +
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "gam", formula = y ~ s(x), method.args = list(family = "gaussian")) +
+  ggtitle("Relationship between Y and Z") +
+  theme_minimal()
+```
+
+```{r Durbin Watson Test}
+dwtest(gam_model_x)
+dwtest(gam_model_y)
+```
+
+
+```{r Residuals by Subject 1}
+data <- data %>% arrange(subject, Z)
+data$residuals_x <- residuals(gam_model_x)
+data$residuals_y <- residuals(gam_model_y)
+
+ggplot(data, aes(x = Z, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for X vs. Z by Subject with Lines") +
+  theme_minimal() +
+  labs(colour = "Subject")
+
+
+ggplot(data, aes(x = Z, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y vs. Z by Subject with Lines") +
+  theme_minimal() +
+  labs(colour = "Subject")
+```
+
+```{r Residual plot 1}
+data$index <- 1:nrow(data)
+ggplot(data, aes(x = index, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for X by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject") 
+
+
+ggplot(data, aes(x = index, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject") 
+```
+
+```{r Correlation of residual}
+res_x <- comp.resids(data$X, data$Z, regr.pars = list(), regr.method = "gam")
+res_y <- comp.resids(data$Y, data$Z, regr.pars = list(), regr.method = "gam")
+acf(res_x)
+acf(res_y)
+```
+
+# GCM based on GAM
+
+```{r GCM with GAM 1}
+pvals_gcm <- gcm.test(data$X, data$Y, data$Z, regr.method = "gam", plot.residuals = TRUE, regr.pars = list())$p.value
+
+# Interpretation
+cat("Based on the performed GCM test:\n")
+cat("- With a p-value of", pvals_gcm, "and a significance level of 0.05,\n")
+if (pvals_gcm < 0.05) {
+  cat("- We reject the null hypothesis.\n")
+} else {
+  cat("- We fail to reject the null hypothesis.\n")
+}
+```
+# Linear mixed effects model
+```{r}
+# Model with Random Intercepts
+# accounting for variations across groups (e.g., individuals) by allowing intercepts to vary.
+
+model_X_lme_1 <- lmer(X ~ Z + (1|subject), data = data)
+model_Y_lme_1 <- lmer(Y ~ Z + (1|subject), data = data)
+
+
+residuals_X_lme_1 <- resid(model_X_lme_1)
+residuals_Y_lme_1 <- resid(model_Y_lme_1)
+```
+
+```{r Residual plot & ACF}
+plot(residuals_X_lme_1)
+abline(h = 0, col = "red")
+acf(residuals_X_lme_1)
+plot(residuals_Y_lme_1)
+abline(h = 0, col = "red")
+acf(residuals_Y_lme_1)
+
+```
+```{r LME Model Predictions for Each Subject}
+library(lme4)
+library(ggplot2)
+library(dplyr)
+
+
+
+predict_data <- expand.grid(
+  Z = seq(min(data$Z), max(data$Z), length.out = 100),  # 假设Z的范围
+  subject = unique(data$subject)
+)
+
+
+predict_data$predicted_X <- predict(model_X_lme_1, newdata = predict_data, re.form = NULL)
+
+
+ggplot() +
+  geom_point(data = data, aes(x = Z, y = X, colour = factor(subject)), alpha = 0.5) + 
+  geom_line(data = predict_data, aes(x = Z, y = predicted_X, colour = factor(subject)), size = 1) + 
+  labs(title = "LME Model Predictions for Each Subject", x = "Z", y = "X") +
+  theme_minimal() +
+  theme(legend.title = element_blank())  
+
+
+```
+
+```{r Residuals by Subject}
+data <- data %>% arrange(subject, Z)
+data$residuals_x <- residuals(model_X_lme_1)
+data$residuals_y <- residuals(model_Y_lme_1)
+
+ggplot(data, aes(x = Z, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_line() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for X vs. Z by Subject with Lines") +
+  theme_minimal() +
+  labs(colour = "Subject")
+
+
+ggplot(data, aes(x = Z, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y vs. Z by Subject with Lines") +
+  theme_minimal() +
+  labs(colour = "Subject")
+
+```
+
+```{r Residual Plot}
+
+data$index <- 1:nrow(data)
+ggplot(data, aes(x = index, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for X by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject") 
+
+
+ggplot(data, aes(x = index, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject") 
+
+```
+
+
+
+# GCM based on LME
+
+```{r}
+pvals_gcm_lme_1 <- gcm.test(resid.XonZ = residuals_X_lme_1, resid.YonZ = residuals_Y_lme_1)$p.value
+
+# Interpretation
+cat("Based on the performed test based on LME:\n")
+cat("- With a p-value of", pvals_gcm_lme_1, "and a significance level of 0.05,\n")
+if (pvals_gcm_lme_1 < 0.05) {
+  cat("- We reject the null hypothesis.\n")
+} else {
+  cat("- We fail to reject the null hypothesis.\n")
+}
+```
+# Nonlinear model with random intercept
+
+X_it = f(Z_it)+alpha_i+e_it
+Y_it = g(Z_it)+beta_i+e_it
+
+
+```{r Nonlinear dataset}
+library(MASS) # For mvrnorm
+library(tidyverse)
+set.seed(123)
+
+b <- 0
+
+n_subjects <- 100
+n_measurements <- 3
+
+cor_matrix <- matrix(0.5, nrow = n_measurements, ncol = n_measurements)
+diag(cor_matrix) <- 1
+
+data <- data.frame(subject = rep(1:n_subjects, each = n_measurements),
+                   measurement = rep(1:n_measurements, times = n_subjects),
+                   Z = NA)
+
+# Generate Z values
+for (i in 1:n_subjects) {
+  data$Z[data$subject == i] <- mvrnorm(n = 1, mu = rep(0, n_measurements), Sigma = cor_matrix)
+}
+
+# Initialize X and Y with NA values
+data$X <- NA
+data$Y <- NA
+
+# # Function to calculate X based on current and previous Z
+# calculate_X_Y <- function(Z_current, Z_previous, is_X = TRUE) {
+#   # Handle the case for the first measurement
+#   Z_previous <- ifelse(is.na(Z_previous), Z_current, Z_previous)
+#   
+#   if(is_X) {
+#     return(5 * sin((Z_current + Z_previous)^2 + 10))
+#   } else {
+#     return((Z_current + Z_previous)^2)
+#   }
+# }
+
+
+alpha <- rnorm(n_subjects,sd=5)
+alpha <- rep(alpha, each = n_measurements)
+
+beta <- rnorm(n_subjects,sd=5)
+beta <- rep(beta, each = n_measurements)
+
+# alpha <- rep(1:10, n_subjects)
+# alpha <- rep(alpha, each = n_measurements)  # Fixed intercept for X
+# beta <- rep(1:10, n_subjects)
+# beta <- rep(beta, each = n_measurements)  # Fixed intercept for X
+
+# Iterate through data to calculate X and Y based on Z_t and Z_t-1
+for(i in 1:nrow(data)) {
+  Z_current <- data$Z[i]
+  Z_previous <- ifelse(data$measurement[i] == 1, NA, data$Z[i-1])
+  # data$X[i] <- calculate_X_Y(Z_current,0, TRUE) + alpha[i] + rnorm(1, mean = 0, sd = 1)
+  # data$Y[i] <- calculate_X_Y(Z_current,0, FALSE) + beta[i] + b*data$X[i]  +rnorm(1, mean = 0, sd = 1)
+  data$X[i] <- log(Z_current^2) + alpha[i] + rnorm(1, mean = 0, sd = 1)  # Quadratic effect of Z
+  data$Y[i] <- Z_current^3 + 2*beta[i] + rnorm(1, mean = 0, sd = 1)  # Sinusoidal effect of Z
+  # data$X[i] <- log(Z_current^2) + alpha[i] + rnorm(1, mean = 0, sd = 1)  # Quadratic effect of Z
+  # data$Y[i] <- Z_current^3 + 2*beta[i] + rnorm(1, mean = 0, sd = 1)  # Cubic effect of Z
+}
+  
+```
+
+# Check data structure
+
+```{r Plot of X,Y on Z}
+library(ggplot2)
+
+
+ggplot(data, aes(x = Z, y = X)) +
+  geom_point(aes(color = Z), alpha = 0.6) +  
+  scale_color_gradient(low = "blue", high = "red") + 
+  theme_minimal() +  
+  labs(title = "Relationship between Z and X",
+       x = "Z",
+       y = "X") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+ggplot(data, aes(x = Z, y = Y)) +
+  geom_point(aes(color = Z), alpha = 0.6) +  
+  scale_color_gradient(low = "green", high = "yellow") + 
+  theme_minimal() +  
+  labs(title = "Relationship between Z and Y",
+       x = "Z",
+       y = "Y") +
+  theme(plot.title = element_text(hjust = 0.5))  
+```
+
+```{r Average X and Y vs. Average Z 2}
+# Use tidyverse to calculate averages and plot
+data %>%
+  group_by(subject) %>%
+  summarise(average_X = mean(X, na.rm = TRUE), average_Z = mean(Z, na.rm = TRUE), average_Y = mean(Y, na.rm = TRUE)) %>%
+  ggplot() +
+  geom_point(aes(x = average_Z, y = average_X), color = "blue") +
+  geom_point(aes(x = average_Z, y = average_Y), color = "red") +
+  labs(x = "Average Z", y = "Average", title = "Average X and Y vs. Average Z for each subject") +
+  theme_minimal() +
+  scale_y_continuous(name = "Average X", sec.axis = sec_axis(~., name = "Average Y"))
+```
+```{r Relationship between Z and X for Selected Subjects 2}
+
+library(ggplot2)
+
+set.seed(123)
+selected_subjects <- sample(unique(data$subject), 10)
+selected_data <- data[data$subject %in% selected_subjects,]
+
+
+ggplot(selected_data, aes(x = Z, y = X, group = subject, color = as.factor(subject))) +
+  geom_line() +  
+  geom_point() +  
+  theme_minimal() +
+  labs(title = "Relationship between Z and X for Selected Subjects",
+       x = "Z",
+       y = "X",
+       color = "Subject") +
+  scale_color_viridis_d(name = "Subject ID") +
+  theme(legend.title = element_text(size = 12), legend.text = element_text(size = 10))
+
+ggplot(selected_data, aes(x = Z, y = Y, group = subject, color = as.factor(subject))) +
+  geom_line() +  
+  geom_point() +  
+  theme_minimal() +
+  labs(title = "Relationship between Z and Y for Selected Subjects",
+       x = "Z",
+       y = "Y",
+       color = "Subject") +
+  scale_color_viridis_d(name = "Subject ID") +
+  theme(legend.title = element_text(size = 12), legend.text = element_text(size = 10))
+
+```
+# Generalized addtiver regression
+
+```{r Generalized addtiver regression 2 }
+gam(X ~ s(Z), data = data, method = "GCV.Cp")
+
+
+gam(Y ~ s(Z), data = data, method = "GCV.Cp")
+
+
+ggplot(data, aes(x = Z, y = X)) +
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "gam", formula = y ~ s(x), method.args = list(family = "gaussian")) +
+  ggtitle("Relationship between X and Z") +
+  theme_minimal()
+
+ggplot(data, aes(x = Z, y = Y)) +
+  geom_point(alpha = 0.5) + 
+  geom_smooth(method = "gam", formula = y ~ s(x), method.args = list(family = "gaussian")) +
+  ggtitle("Relationship between Y and Z") +
+  theme_minimal()
+```
+```{r Residuals2}
+data <- data %>% arrange(subject, Z)
+data$residuals_x <- residuals(gam_model_x)
+data$residuals_y <- residuals(gam_model_y)
+
+ggplot(data, aes(x = Z, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for X vs. Z by Subject with Lines") +
+  theme_minimal() +
+  labs(colour = "Subject")
+
+
+ggplot(data, aes(x = Z, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_line() + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y vs. Z by Subject with Lines") +
+  theme_minimal() +
+  labs(colour = "Subject")
+
+```
+```{r Residual plot2}
+data$index <- 1:nrow(data)
+ggplot(data, aes(x = index, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for X by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject") 
+
+
+ggplot(data, aes(x = index, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject") 
+
+```
+
+
+```{r}
+# 假设 res_X_gamm 和 res_Y_gamm 已经被计算出来
+# 并且 adnidd$RID 包含了对应的主题标识（在你的示例中称为 subject）
+
+# 为 X 的残差创建数据框
+data_X <- data.frame(
+  index = 1:length(res_X_gamm[,1]), # 假设对于第一种测量的残差
+  residuals_x = res_X_gamm[,1], # 只取第一列作为示例
+  subject = adnidd$RID
+)
+
+# 为 Y 的残差创建数据框
+data_Y <- data.frame(
+  index = 1:length(res_Y_gamm),
+  residuals_y = res_Y_gamm,
+  subject = adnidd$RID
+)
+
+
+```
+
+# plot1
+```{r}
+library(ggplot2)
+
+
+ggplot(data_X, aes(x = index, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for X by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject")+
+  theme(legend.position = "none") 
+
+
+ggplot(data_Y, aes(x = index, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject")+
+  theme(legend.position = "none") 
+
+
+```
+# plot2
+```{r}
+data_X_gam <- data.frame(
+  index = 1:length(res_X_gam[,1]), # only the first col for plotting
+  residuals_x = res_X_gam[,1], # only the first col for plotting
+  subject = adnidd$RID
+)
+
+
+data_Y_gam_nobin <- data.frame(
+  index = 1:length(res_YallZ),
+  residuals_y = res_YallZ,
+  subject = adnidd$RID
+)
+
+data_Y_gam_bin <- data.frame(
+  index = 1:length(res_YbinZ),
+  residuals_y = res_YbinZ,
+  subject = adnidd$RID
+)
+
+ggplot(data_X_gam, aes(x = index, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for X1 by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject")+
+  theme(legend.position = "none") 
+
+
+ggplot(data_Y_gam_nobin, aes(x = index, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y by Sample Index from GAM") +
+  theme_minimal() +
+  labs(colour = "Subject")+
+  theme(legend.position = "none") 
+
+
+
+ggplot(data_Y_gam_bin, aes(x = index, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Residuals for Y by Sample Index from GAM with binomial family") +
+  theme_minimal() +
+  labs(colour = "Subject")+
+  theme(legend.position = "none") 
+
+
+
+```
+
+
+
+
+```{r}
+set.seed(123)
+subjects_sampled <- sample(unique(data_X$subject), 100) #
+
+data_X_sampled <- data_X[data_X$subject %in% subjects_sampled, ]
+data_Y_sampled <- data_Y[data_Y$subject %in% subjects_sampled, ]
+
+
+ggplot(data_X_sampled, aes(x = index, y = residuals_x, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Sampled Residuals for X by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject")+
+  theme(legend.position = "none")
+
+
+ggplot(data_Y_sampled, aes(x = index, y = residuals_y, colour = factor(subject))) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  ggtitle("Sampled Residuals for Y by Sample Index") +
+  theme_minimal() +
+  labs(colour = "Subject")+
+  theme(legend.position = "none") 
+
+```
+
+
+```{r ACF1}
+res_x <- comp.resids(data$X, data$Z, regr.pars = list(), regr.method = "gam")
+res_y <- comp.resids(data$Y, data$Z, regr.pars = list(), regr.method = "gam")
+
+plot(res_x)
+plot(res_y)
+abline(h = 0, col = "red")
+acf(res_y)
+abline(h = 0, col = "red")
+acf(res_x)
+cor(res_x,res_y)
+```
+
+# GCM based on GAM for nonlinear case
+```{r GCM based on GAM}
+pvals_gcm <- gcm.test(data$X, data$Y, data$Z, regr.method = "gam", plot.residuals = F, regr.pars = list())$p.value
+pvals_gcm
+```
+# GCM based on GAMM
+
+```{r GCM based On GAMM}
+model_X_gam_1 <- gamm4(X ~ s(Z), data = data, random = ~(1|subject))
+model_Y_gam_1 <- gamm4(Y ~ s(Z), data = data, random = ~(1|subject))
+residuals_X_gam_1 <- resid(model_X_gam_1$mer)
+residuals_Y_gam_1 <- resid(model_Y_gam_1$mer)
+pvals_gcm_gam_1 <- gcm.test(resid.XonZ = residuals_X_gam_1, resid.YonZ = residuals_Y_gam_1)$p.value
+pvals_gcm_gam_1
+```
+```{r ACF}
+plot(residuals_X_gam_1)
+abline(h = 0, col = "red")
+acf(residuals_X_gam_1)
+plot(residuals_Y_gam_1)
+abline(h = 0, col = "red")
+acf(residuals_Y_gam_1)
+```
+```{r GAMM Predictions for X}
+
+library(gamm4)
+library(ggplot2)
+library(dplyr)
+
+
+predict_data_X <- expand.grid(
+  Z = seq(min(data$Z), max(data$Z), length.out = 100),
+  subject = factor(unique(data$subject))  # 
+)
+
+
+predict_data_X$predicted_X <- predict(model_X_gam_1$gam, newdata = predict_data_X)
+
+
+ggplot(data, aes(x = Z, y = X, colour = factor(subject))) +
+  geom_point(alpha = 0.5) + 
+  geom_line(data = predict_data_X, aes(x = Z, y = predicted_X, group = subject), colour = "black", size = 1) +
+  labs(title = "GAMM Predictions for X", x = "Z", y = "X") +
+  theme_minimal()
+```
+```
+
+
+
+
+
+

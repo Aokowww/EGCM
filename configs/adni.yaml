@@ -1,0 +1,8 @@
+# ADNI/Adnimerge variable selection (Chapter 6.2)
+id_col: RID
+visit_date_col: EXAMDATE
+mri_markers_X: [Ventricles, Hippocampus, Entorhinal]
+cognitive_tests_Z: [MOCA, MMSE, CDRSB]
+outcome_Y: AV45
+# If you use diagnosis as an auxiliary variable
+diagnosis_col: DX
