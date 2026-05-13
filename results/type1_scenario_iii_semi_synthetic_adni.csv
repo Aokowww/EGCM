@@ -1,0 +1,11 @@
+scenario,method,n,type1_error,mcse_2
+iii_semi_synthetic_adni,EGCM,300,0.05,0.04358898943540673
+iii_semi_synthetic_adni,EGCM,600,0.07,0.0510294032886923
+iii_semi_synthetic_adni,EGCM,1000,0.06,0.047497368348151665
+iii_semi_synthetic_adni,EGCM,1200,0.08,0.054258639865002144
+iii_semi_synthetic_adni,EGCM,1500,0.06,0.047497368348151665
+iii_semi_synthetic_adni,GCM,300,0.56,0.09927738916792685
+iii_semi_synthetic_adni,GCM,600,0.54,0.0996794863550169
+iii_semi_synthetic_adni,GCM,1000,0.52,0.09991996797437437
+iii_semi_synthetic_adni,GCM,1200,0.55,0.09949874371066199
+iii_semi_synthetic_adni,GCM,1500,0.55,0.09949874371066199

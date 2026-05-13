@@ -1,0 +1,16 @@
+scenario,method,n,type1_error,mcse_2
+ii_random_intercepts_random_slopes,EGCM,50,0.08,0.054258639865002144
+ii_random_intercepts_random_slopes,EGCM,100,0.1,0.060000000000000005
+ii_random_intercepts_random_slopes,EGCM,200,0.08,0.054258639865002144
+ii_random_intercepts_random_slopes,EGCM,300,0.09,0.05723635208501674
+ii_random_intercepts_random_slopes,EGCM,400,0.08,0.054258639865002144
+ii_random_intercepts_random_slopes,EGCM_misspecified,50,0.23,0.08416650165000325
+ii_random_intercepts_random_slopes,EGCM_misspecified,100,0.26,0.08772684879784524
+ii_random_intercepts_random_slopes,EGCM_misspecified,200,0.23,0.08416650165000325
+ii_random_intercepts_random_slopes,EGCM_misspecified,300,0.23,0.08416650165000325
+ii_random_intercepts_random_slopes,EGCM_misspecified,400,0.22,0.08284926070883192
+ii_random_intercepts_random_slopes,GCM,50,0.47,0.09981983770774223
+ii_random_intercepts_random_slopes,GCM,100,0.47,0.09981983770774223
+ii_random_intercepts_random_slopes,GCM,200,0.48,0.09991996797437437
+ii_random_intercepts_random_slopes,GCM,300,0.38,0.09707728879609277
+ii_random_intercepts_random_slopes,GCM,400,0.47,0.09981983770774223
