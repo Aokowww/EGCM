@@ -1,0 +1,7 @@
+predictor,method,p_value,p_value_fdr,reject
+X1_ventricles,GCM,0.0176,0.0176,True
+X2_hippocampus,GCM,2.02e-09,6.06e-09,True
+X3_entorhinal_cortex,GCM,0.000837,0.00167,True
+X1_ventricles,EGCM,5.08e-34,1.52e-33,True
+X2_hippocampus,EGCM,6.83e-27,1.37e-26,True
+X3_entorhinal_cortex,EGCM,0.899,0.899,False
