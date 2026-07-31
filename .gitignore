@@ -19,6 +19,13 @@ figures/
 *.tsv
 *.parquet
 
+# Reviewed aggregate tables intended for public release
+!results_public/
+!results_public/**/*.csv
+
+# Restricted local datasets
+/data/adni_raw/
+
 # OS
 .DS_Store
 Thumbs.db

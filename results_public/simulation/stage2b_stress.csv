@@ -1,0 +1,7 @@
+scenario,repetitions,rejections,rejection_rate,monte_carlo_se,exact_95_low,exact_95_high,gate_pass
+combined_stress_null,1000,53,0.053,0.007085,0.039949,0.068755,TRUE
+informative_cluster_null,1000,48,0.048,0.006760,0.035600,0.063140,TRUE
+one_sided_nuisance_null,1000,52,0.052,0.007021,0.039077,0.067635,TRUE
+random_slope_null,1000,65,0.065,0.007796,0.050520,0.082101,FALSE
+serial_ar1_null,1000,46,0.046,0.006624,0.033871,0.060884,TRUE
+unequal_cluster_null,1000,56,0.056,0.007271,0.042576,0.072108,TRUE

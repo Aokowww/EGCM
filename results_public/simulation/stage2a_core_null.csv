@@ -1,0 +1,2 @@
+design,scenario,repetitions,rejections,rejection_rate,exact_95_low,exact_95_high,gate_pass
+A,core_population_null,1000,47,0.047,0.034735,0.062013,TRUE
