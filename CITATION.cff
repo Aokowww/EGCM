@@ -1,11 +1,12 @@
 cff-version: 1.2.0
-message: "If you use this code, please cite the accompanying master thesis."
-title: "EGCM: An Extension of the Generalized Covariance Measure for Conditional Independence Testing"
+message: "If you use this code, please cite the repository and the accompanying thesis."
+title: "Cluster-GCM for Population-Level Conditional Independence in Repeated-Measures Data"
 authors:
   - family-names: "Huo"
     given-names: "Qingzi"
-date-released: 2026-02-18
-repository-code: "https://github.com/<your-github-username>/<your-repo-name>"
+version: "2.0.0"
+date-released: 2026-07-31
+repository-code: "https://github.com/Aokowww/EGCM"
 license: MIT
 preferred-citation:
   type: thesis
@@ -14,5 +15,5 @@ preferred-citation:
     - family-names: "Huo"
       given-names: "Qingzi"
   institution:
-    name: "Humboldt-Universität zu Berlin"
+    name: "Humboldt-Universitaet zu Berlin"
   year: 2024

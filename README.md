@@ -1,269 +1,164 @@
-# EGCM: An Extension of the Generalized Covariance Measure (GCM)
+# Cluster-GCM for repeated-measures data
 
-This repository contains code and materials accompanying the master thesis:
+This repository contains the current cluster-GCM redesign of EGCM, together
+with the code used for its simulation checks and exploratory ADNI analyses.
+The redesign changes the unit of inference from visits to subjects.
 
-> **An Extension of the Generalized Covariance Measure for Conditional Independence Testing**
+The earlier thesis implementation is preserved in the
+[`v1.0-thesis-legacy`](https://github.com/Aokowww/EGCM/tree/v1.0-thesis-legacy)
+tag. It fitted mixed models and then applied a visit-level GCM calculation.
+That implementation remains available for historical reproduction, but it is
+not the method used in the current analysis.
 
-The goal is to extend the Generalised Covariance Measure (GCM) framework for conditional independence (CI)
-testing to **non-i.i.d. repeated-measurements data** by replacing the regression step with a
-**Generalized Additive Mixed Model (GAMM)** (implemented via `gamm4`).
+## Current status
 
-## Core idea
+The method is still under development. The evidence is mixed, and the
+repository reports the unsuccessful checks as well as the successful ones.
 
-Given repeated measurements $(X_{it}, Y_{it}, Z_{it})$ for subject $i$ at time $t$, the EGCM workflow is:
+| Check | Result |
+|---|---|
+| Design A, core population null | 47/1,000 rejections; passed the frozen criterion |
+| Design A, six stress settings | Five passed; the random-slope setting failed |
+| Design B, two relevant null settings | 29/100 and 39/100 rejections |
+| ADNI MRI-ADAS13 analysis | Exploratory association analysis; 647 participants and 4,406 observations |
 
-1. Fit GAMMs for $\mathbb{E}[X_{it}\mid Z_{it}]$ and $\mathbb{E}[Y_{it}\mid Z_{it}]$ to account for
-   within-subject dependence.
-2. Compute residuals
-   $$\varepsilon_{it}=X_{it}-\widehat{\mathbb{E}}[X_{it}\mid Z_{it}],\quad \xi_{it}=Y_{it}-\widehat{\mathbb{E}}[Y_{it}\mid Z_{it}].$$
-3. Apply the GCM test to the residuals (or their products) to test
-   $$H_0: X \perp\!\!\!\perp Y\mid Z.$$
+The complete Stage 2b gate failed because the random-slope setting had 65
+rejections in 1,000 repetitions and an exact 95% interval of 0.0505 to
+0.0821. The frozen upper-limit criterion was 0.075. Design A must therefore
+not be described as generally calibrated under random slopes.
 
-## Simulation studies (repeated measurements)
+Design B is included as a model-based sensitivity calculation. Its null
+rejection rates were too high for confirmatory use.
 
-We validate the original GCM and the proposed EGCM on non-i.i.d. longitudinal/repeated-measurements data.
-Across all simulation experiments we report **Type I error** (under the null) and **power** (under the alternative),
-based on **100 Monte Carlo repetitions** per setting.
+## Statistical target
 
-### Common notation
+For independent subjects \(i=1,\ldots,N\), with repeated visits
+\(t=1,\ldots,m_i\), Design A examines the population-level same-visit null
 
-We generate repeated measurements
 \[
-\{(X_{it}, Y_{it}, Z_{it})\}_{i=1,\dots,n;\; t=1,\dots,h_i},
-\]
-where $i$ indexes subjects and $t$ indexes within-subject measurement occasions.
-The conditional independence (CI) hypothesis of interest is
-\[
-H_0:\; X \perp\!\!\!\perp Y \mid Z.
-\]
-
-EGCM differs from GCM only in the regression step: it estimates conditional means using **GAMMs** to account
-for within-subject dependence before applying a GCM-style residual covariance test.
-
----
-
-### Simulation 1: Random intercept models (nonlinear mean functions)
-
-This experiment corresponds to the main repeated-measurement toy setting.
-
-**Design.** We vary the number of subjects and measurements as
-\[
-n\in\{20,50,100,200\},\qquad
-h_i\in\{3,5,10,20,50,100\}.
-\]
-Within-subject covariates $Z_{it}$ are generated from a multivariate normal distribution with covariance matrix
-$\Sigma$ such that $\Sigma_{tt}=1$ and $\Sigma_{ts}=0.5$ for $t\neq s$ (within-subject correlation).
-
-We consider a collection of nonlinear mean functions (e.g. square/cubic/tanh/negative exponential) via
-$f(\cdot)$ and $g(\cdot)$ to emulate diverse empirical relationships.
-
-**Scenario (a): simple correlation structure**
-\[
-X_{it}=f(Z_{it})+0.3\,\varepsilon_{it},\qquad
-Y_{it}=g(Z_{it})+bX_{it}+0.3\,\xi_{it}.
+H_0: X_{it} \perp\!\!\!\perp Y_{it}\mid Z_{it}.
 \]
 
-**Scenario (b): random intercepts**
-\[
-X_{it}=f(Z_{it})+\alpha_i+0.3\,\varepsilon_{it},\qquad
-Y_{it}=g(Z_{it})+\beta_i+bX_{it}+0.3\,\xi_{it},
-\]
-where $(\alpha_i,\beta_i)$ are subject-specific random intercepts (Gaussian).
+Latent subject effects are integrated out rather than conditioned upon. The
+calculation:
 
-**Null vs alternative.** We set $b=0$ (CI holds) to evaluate Type I error and $b=0.2$ to evaluate power.
+1. assigns all visits from a subject to the same cross-fitting fold;
+2. estimates population conditional means without a held-out-subject BLUP;
+3. averages residual products within each subject;
+4. studentizes across the \(N\) independent subject scores; and
+5. uses subject-level multipliers for the global multi-marker test.
 
-**Implementation.**
-- GCM uses GAM-based conditional mean estimation (i.i.d. assumption implicit).
-- EGCM uses GAMMs with a random intercept for subject, e.g.
-  `X ~ s(Z) + (1|subject)` and `Y ~ s(Z) + (1|subject)`.
+The scalar test targets a residual covariance. Conditional independence
+implies a zero target, but a zero target alone does not establish conditional
+independence.
 
-**Scripts.**
-- `code/simulation/sim_correlatedz.R`
-- `code/simulation/sim_nonlinear_post.R`
-- `code/notes/Note_random_intercept.Rmd`
+The theorem statements for the new cluster-GCM method remain proposed
+results with a proof programme. They are not presented as completed theorems.
 
----
+## Simulation evidence
 
-### Simulation 2: Random slope models + missingness (robustness & misspecification)
+The public validation notes record the frozen criteria, exact confidence
+intervals, integrity checks and file hashes:
 
-This experiment stresses the methods under stronger subject-specific heterogeneity and missing data.
+- [cluster-GCM method](docs/METHOD_CLUSTER_GCM.md)
+- [Stage 2a core-null validation](docs/VALIDATION_STAGE2A_CORE.md)
+- [Stage 2b stress validation](docs/VALIDATION_STAGE2B_STRESS.md)
 
-**Design.** We vary the number of subjects
-\[
-n\in\{20,50,100,200,300,400\},
-\]
-and fix the number of measurements per subject at $h=10$.
-We generate $Z_{it}\sim \mathcal{N}(0,1)$, random intercepts $(\alpha_i,\beta_i)$, and random slopes
-$(RE_{sx,i}, RE_{sy,i})$:
-\[
-\alpha_i,\beta_i \sim \mathcal{N}(0,5^2),\qquad
-RE_{sx,i}, RE_{sy,i} \sim \mathcal{N}(0,1.5^2).
-\]
-We introduce missingness independently in $(X,Y,Z)$ with probability $0.2$.
+Short, machine-readable summaries are stored in
+[`results_public/simulation`](results_public/simulation). The full checkpoint
+directories are omitted from Git because they contain thousands of
+intermediate files.
 
-**DGP.**
-\[
-X_{it}= \alpha_i + f(Z_{it}) + RE_{sx,i} Z_{it} + 0.3\,\varepsilon_{it},
-\]
-\[
-Y_{it}= \beta_i + g(Z_{it}) + RE_{sy,i} Z_{it} + b\,f(Z_{it}) + 0.3\,\xi_{it}.
-\]
+## Exploratory ADNI analyses
 
-**Model specification vs misspecification.**
-We compare:
-- correctly specified random effects: `(1 + Z | subject)`,
-- misspecified random effects: `(1 | subject)` only.
+The current MRI-ADAS13 experiment anchors each observation on an ADAS13
+assessment and selects the nearest quality-controlled FreeSurfer 7 MRI scan
+within 30 days. The common A/B cohort requires at least five complete visits.
+It contains 4,406 observations from 647 participants; the median number of
+visits is six.
 
-**Scripts.**
-- `code/simulation/random_slope.R`
-- `code/simulation/Mimic_ADNI_random_slope.R`
-- `code/simulation/Mimic_ADNI_zuni.R`
-- `code/simulation/Mimic_ADNI_zuni - mis.R`
+The conditioning set contains time since baseline, baseline age, sex,
+education, APOE4, intracranial volume, protocol, site, MRI field strength and
+the MRI-ADAS date gap. Concurrent diagnostic and cognitive variables are not
+included.
 
----
+For Design A, the global three-marker multiplier test reached the resolution
+limit of 0.0001 with 9,999 draws. Residual ventricular volume was positively
+associated with ADAS13, while residual hippocampal and entorhinal volumes were
+negatively associated with ADAS13. These are contemporaneous conditional
+associations. They do not show that structural change preceded cognitive
+change, and they are not causal estimates.
 
-### Simulation 3: Synthetic ADNI-like data (irregular visit schedules)
+The cohort construction, diagnostics and bounded interpretation are reported
+in:
 
-This experiment mimics common properties of medical cohorts: irregular numbers of visits, incomplete records,
-and heterogeneous subject trajectories.
-
-**Key feature: variable number of measurements.**
-We generate $h_i$ to emulate ADNI-like visit counts, sampling from a Gaussian distribution and truncating to a feasible range:
-\[
-h_i \sim \text{round}\big(\mathcal{N}(6.73, 4.75^2)\big),\qquad h_i \in \{1,\dots,24\}.
-\]
-
-We consider large-scale settings
-\[
-n\in\{200,600,1000,1200,1500\},
-\]
-and evaluate both a univariate and a bivariate $(X,Y,Z)$ configuration.
-
-**Univariate configuration (CI under $b=0$).**
-\[
-X_{it}= f_1(Z_{1it}) + f_2(Z_{2it}) + \alpha_i + 0.3\,\varepsilon_{it},\qquad
-Y_{it}= g_1(Z_{1it}) + g_2(Z_{2it}) + \beta_i + 0.3\,\xi_{it}.
-\]
-
-**Bivariate configuration (more complex dependence).**
-\[
-Z_{1it}, Z_{2it} \sim \mathcal{N}(0,1),\quad
-\alpha_{1i},\alpha_{2i},\beta_{1i},\beta_{2i}\sim \mathcal{N}(0,5^2),
-\]
-\[
-\begin{aligned}
-X_{1it} &= f_1(Z_{1it}) + f_2(Z_{2it}) + \alpha_{1i} + 0.3\,\varepsilon_{1it}, \\
-X_{2it} &= f_1(Z_{1it}) + f_2(Z_{2it}) + X_{1it} + \alpha_{2i} + 0.3\,\varepsilon_{2it}, \\
-Y_{1it} &= g_1(Z_{1it}) + g_2(Z_{2it}) + \beta_{1i} + 0.3\,\xi_{1it}, \\
-Y_{2it} &= g_1(Z_{1it}) + g_2(Z_{2it}) + Y_{1it} + \beta_{2i} + 0.3\,\xi_{2it}.
-\end{aligned}
-\]
-
-**Script.**
-- `code/simulation/Mimic_ADNI.R`
-
-
-## ADNI case study (structural MRI vs amyloid PET, conditional on cognition)
-
-### Scientific question (CI testing)
-
-We test whether **structural MRI markers** provide information about early AD-related pathology beyond
-standard cognitive assessments.
-
-Let
-- $X$ be a vector of structural MRI markers,
-- $Z$ be cognitive test scores,
-- $Y$ be an amyloid PET-derived continuous biomarker.
-
-The statistical question is a conditional independence test:
-\[
-H_0:\; X \perp\!\!\!\perp Y \mid Z.
-\]
-Because ADNI is a longitudinal cohort with repeated observations per subject, the data are **non-i.i.d.**,
-and EGCM is designed to account for within-subject dependence through mixed-effects smoothing.
-
-### Variable specification
-
-We follow the thesis variable choice:
-\[
-X=(\texttt{Ventricles},\texttt{Hippocampus},\texttt{Entorhinal}),\qquad
-Z=(\texttt{MOCA},\texttt{MMSE},\texttt{CDRSB}),
-\]
-and
-\[
-Y=\texttt{AV45 ratio}=\frac{\text{Cortical Grey Matter}}{\text{Whole Cerebellum}}.
-\]
-
-### Why a continuous outcome ($Y$ = AV45 ratio)
-
-A key practical choice is to use the **continuous** AV45 ratio rather than a **categorical** diagnosis label.
-The standard GCM asymptotic justification relies on CLT-style arguments for residual products after conditional
-mean estimation. When switching to classification likelihoods (e.g., log-likelihood-based fits),
-additional theoretical work is typically needed to ensure analogous asymptotic validity.
-Using a continuous PET biomarker keeps the analysis aligned with the standard GCM/EGCM setup.
-
-### Modeling strategy (EGCM)
-
-EGCM estimates conditional means using GAMMs with subject-level random effects, e.g.
-- for a univariate marker: `X ~ s(Z1) + s(Z2) + s(Z3) + (1|subject)`,
-- similarly for $Y$.
-
-Residuals are formed as
-\[
-\varepsilon_{it}=X_{it}-\widehat{\mathbb{E}}[X_{it}\mid Z_{it}],\qquad
-\xi_{it}=Y_{it}-\widehat{\mathbb{E}}[Y_{it}\mid Z_{it}],
-\]
-and CI is tested via a GCM-type statistic based on $\varepsilon_{it}\xi_{it}$.
-
-### Multiple testing (optional per-marker analysis)
-
-If analyzing each MRI marker separately,
-\[
-X_1 \perp\!\!\!\perp Y\mid Z,\quad
-X_2 \perp\!\!\!\perp Y\mid Z,\quad
-X_3 \perp\!\!\!\perp Y\mid Z,
-\]
-we recommend reporting FDR-adjusted $p$-values (e.g., Benjamini–Hochberg) to control false discoveries.
-
-### Scripts
-
-- Main analysis using continuous AV45 outcome: `code/adni/ADNI_exp.R`
-- Alternative script (includes categorical endpoint exploration): `code/adni/ADNI.R`
-
-### Data access & compliance
-
-This repository **does not distribute ADNI data**.
-To reproduce the analysis, you must obtain ADNI access independently and run the scripts locally.
-See `docs/DATA_ACCESS.md` for the expected workflow and repository conventions.
-
+- [MRI-ADAS13 experiment report](docs/ADNI_MRI_ADAS13.md)
+- [earlier MRI-AV45 Design A analysis](docs/ADNI_MRI_AV45.md)
+- [public aggregate tables](results_public/adni)
 
 ## Repository layout
 
-- `code/simulation/`: simulation scripts.
-- `code/adni/`: ADNI analysis scripts.
-- `code/notes/`: exploratory R Markdown notes.
-- `configs/`: YAML configs documenting key settings.
-- `thesis/`: the thesis PDF.
-
-## Requirements
-
-- R (>= 4.2 recommended)
-- Key packages: `mgcv`, `gamm4`, `lme4`, `GeneralisedCovarianceMeasure`, `MASS`, `tidyverse`
-
-For reproducibility, consider using `renv` (see `docs/REPRODUCIBILITY.md`).
-
-## How to run
-
-From the repository root:
-
-```r
-# Example: run one simulation script
-source("code/simulation/sim_correlatedz.R")
-
-# Example: run ADNI analysis
-source("code/adni/ADNI_exp.R")
+```text
+code/adni/            cluster-GCM implementation and ADNI preparation scripts
+code/simulation/      frozen simulation drivers and data-generating processes
+configs/              analysis and simulation settings
+docs/                 design decisions and final validation reports
+results_public/       reviewed aggregate results without participant-level data
+tests/                checks for the score calculation and stress generators
 ```
 
-## License
+The older thesis scripts remain under their original paths so that the legacy
+tag and previous figures can still be traced.
 
-MIT (see `LICENSE`).
+## Running the checks
+
+Run these commands from the repository root:
+
+```bash
+Rscript tests/test_cluster_gcm_core.R
+Rscript tests/test_adni_stress_dgp.R
+```
+
+The core Stage 2a configuration is:
+
+```bash
+Rscript code/simulation/simulate_adni_designs_ab.R \
+  configs/adni_simulation_stage2a_core_a_null.yaml
+```
+
+The six-setting Stage 2b stress run is:
+
+```bash
+Rscript code/simulation/simulate_adni_design_a_stress.R \
+  configs/adni_simulation_stage2b_stress.yaml
+```
+
+ADNI analyses require an approved ADNI account and locally prepared source
+tables:
+
+```bash
+Rscript code/adni/prepare_adni_mri_adas13.R \
+  data/adni_raw/YYYY-MM-DD 30 5
+
+Rscript code/adni/run_adni_redesign.R \
+  configs/adni_mri_adas13_exploratory.yaml
+```
+
+Package requirements and environment notes are in
+[docs/REPRODUCIBILITY.md](docs/REPRODUCIBILITY.md).
+
+## Data access
+
+ADNI data are not distributed in this repository. Local analytic CSV files,
+source tables, participant identifiers and serialized model objects are
+excluded by `.gitignore`. Researchers must obtain access from ADNI and accept
+the applicable data-use terms before running the ADNI scripts.
+
+See [docs/DATA_ACCESS.md](docs/DATA_ACCESS.md) for the expected local file
+layout. Only reviewed aggregate tables are versioned here.
+
+## Citation and licence
+
+Citation metadata are provided in [`CITATION.cff`](CITATION.cff). The code is
+released under the MIT licence. ADNI data remain subject to ADNI's own access
+and use conditions.

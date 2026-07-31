@@ -1,0 +1,53 @@
+# Software-only smoke check for component 2b. This is not a calibration result.
+
+stage:
+  label: "Smoke check for component 2b stress generator and runner."
+
+simulation:
+  repetitions: 2
+  subjects: 48
+  subject_folds: 4
+  bootstrap_reps: 99
+  alpha: 0.05
+  seed: 20260727
+  workers: 2
+  max_tasks_per_run: 20
+  scenarios:
+    random_slope_null:
+      visit_type: fixed
+      visits_fixed: 6
+      random_slope_sd: 0.75
+    serial_ar1_null:
+      visit_type: fixed
+      visits_fixed: 6
+      ar1_rho: 0.6
+    unequal_cluster_null:
+      visit_type: unequal
+      visits_min: 2
+      visits_max: 8
+    informative_cluster_null:
+      visit_type: informative_x
+      visits_min: 2
+      visits_max: 8
+      visits_centre: 5
+      informative_strength: 2
+    one_sided_nuisance_null:
+      visit_type: fixed
+      visits_fixed: 6
+      omitted_x_interaction: 0.5
+    combined_stress_null:
+      visit_type: informative_x
+      visits_min: 2
+      visits_max: 8
+      visits_centre: 5
+      informative_strength: 2
+      random_slope_sd: 0.75
+      ar1_rho: 0.6
+      omitted_x_interaction: 0.5
+
+gate:
+  minimum_repetitions: 1000
+  max_exact_95_high: 0.075
+
+output:
+  directory: results/adni_simulation_stage2b_stress_smoke

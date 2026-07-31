@@ -1,0 +1,10 @@
+quantity,value
+complete_date_matched_rows,8628
+complete_subjects_before_repeat_restriction,2355
+rows_in_minimum_five_visit_cohort,4406
+subjects_in_minimum_five_visit_cohort,647
+median_visits,6
+minimum_visits,5
+maximum_visits,13
+median_absolute_date_gap_days,1
+p90_absolute_date_gap_days,19

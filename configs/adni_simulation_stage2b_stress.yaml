@@ -1,0 +1,72 @@
+# Formal gate component 2b: broader Design A null stress calibration.
+# Run in restartable 100-task batches until 6000/6000 checkpoints complete.
+
+stage:
+  label: "Formal gate component 2b: broader Design A null stress calibration."
+
+simulation:
+  repetitions: 1000
+  subjects: 120
+  subject_folds: 5
+  bootstrap_reps: 999
+  alpha: 0.05
+  seed: 20260728
+  workers: 4
+  max_tasks_per_run: 100
+  scenarios:
+    random_slope_null:
+      visit_type: fixed
+      visits_fixed: 6
+      random_intercept_sd: 1
+      random_slope_sd: 0.75
+      ar1_rho: 0
+      omitted_x_interaction: 0
+    serial_ar1_null:
+      visit_type: fixed
+      visits_fixed: 6
+      random_intercept_sd: 1
+      random_slope_sd: 0
+      ar1_rho: 0.6
+      omitted_x_interaction: 0
+    unequal_cluster_null:
+      visit_type: unequal
+      visits_min: 2
+      visits_max: 8
+      random_intercept_sd: 1
+      random_slope_sd: 0
+      ar1_rho: 0
+      omitted_x_interaction: 0
+    informative_cluster_null:
+      visit_type: informative_x
+      visits_min: 2
+      visits_max: 8
+      visits_centre: 5
+      informative_strength: 2
+      random_intercept_sd: 1
+      random_slope_sd: 0
+      ar1_rho: 0
+      omitted_x_interaction: 0
+    one_sided_nuisance_null:
+      visit_type: fixed
+      visits_fixed: 6
+      random_intercept_sd: 1
+      random_slope_sd: 0
+      ar1_rho: 0
+      omitted_x_interaction: 0.5
+    combined_stress_null:
+      visit_type: informative_x
+      visits_min: 2
+      visits_max: 8
+      visits_centre: 5
+      informative_strength: 2
+      random_intercept_sd: 1
+      random_slope_sd: 0.75
+      ar1_rho: 0.6
+      omitted_x_interaction: 0.5
+
+gate:
+  minimum_repetitions: 1000
+  max_exact_95_high: 0.075
+
+output:
+  directory: results/adni_simulation_stage2b_stress

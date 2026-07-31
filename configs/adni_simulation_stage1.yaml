@@ -1,0 +1,21 @@
+# Stage-1 calibration. This quantifies core behavior but is not the final gate.
+simulation:
+  repetitions: 100
+  subjects: 120
+  visits_regular: 4
+  visits_sparse_min: 2
+  visits_sparse_max: 5
+  random_effect_sd: 1
+  random_effect_correlation: 0.7
+  alternative_error_coefficient: 0.45
+  subject_folds: 5
+  visit_folds: 2
+  design_b_min_visits: 3
+  bootstrap_reps: 999
+  alpha: 0.05
+  seed: 20260726
+  workers: 4
+  max_tasks_per_run: 100
+
+output:
+  directory: results/adni_simulation_stage1

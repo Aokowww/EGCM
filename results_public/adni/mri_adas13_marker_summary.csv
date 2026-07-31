@@ -1,0 +1,7 @@
+design,marker,n_subjects,statistic,p_holm,normalized_residual_covariance,leave_one_subject_out_direction_stable,max_abs_standardized_subject_score
+A,Ventricles,647,7.850029,4.159402e-15,0.306946,TRUE,7.469337
+A,Hippocampus,647,-12.979459,3.200122e-38,-0.465851,TRUE,7.414237
+A,Entorhinal,647,-13.402776,1.747288e-40,-0.419444,TRUE,6.462665
+B,Ventricles,647,9.007122,6.346035e-19,0.455316,TRUE,14.049365
+B,Hippocampus,647,-8.462181,5.248468e-17,-0.256293,TRUE,7.139128
+B,Entorhinal,647,-8.366504,5.935267e-17,-0.235543,TRUE,8.998318

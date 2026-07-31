@@ -1,0 +1,78 @@
+# Exploratory MRI--ADAS13 A/B comparison, frozen before the first GCM run.
+# Design B remains an uncalibrated model-based sensitivity analysis.
+
+data:
+  path: data/ADNI_MRI_ADAS13_30d_min5.csv
+  id_column: RID
+  date_column: EXAMDATE
+  baseline_age_column: AGE
+  age_visit_column: AGE_AT_VISIT
+  factor_columns: [PTGENDER, COLPROT, SITE, MRI_FIELD_STRENGTH]
+  factor_collapse_min_subjects:
+    SITE: 10
+  alignment:
+    verified_against_source_tables: true
+    primary_max_abs_gap_days: 30
+    anchor: ADAS_VISDATE
+    deterministic_tie_break: minimum_absolute_gap_then_earlier_mri_date
+  expected_ranges:
+    AGE: [40, 110]
+    AGE_AT_VISIT: [40, 110]
+    PTEDUCAT: [0, 30]
+    APOE4: [0, 2]
+    ICV: [1, 3000000]
+    Ventricles: [0, 1000000]
+    Hippocampus: [0, 100000]
+    Entorhinal: [0, 100000]
+    ADAS13: [0, 85]
+    MRI_gap_days: [-30, 30]
+  required_columns:
+    - RID
+    - EXAMDATE
+    - AGE
+    - AGE_AT_VISIT
+    - PTGENDER
+    - PTEDUCAT
+    - APOE4
+    - COLPROT
+    - SITE
+    - MRI_FIELD_STRENGTH
+    - MRI_gap_days
+    - ICV
+    - Ventricles
+    - Hippocampus
+    - Entorhinal
+    - ADAS13
+
+analysis:
+  x_markers: [Ventricles, Hippocampus, Entorhinal]
+  y_outcome: ADAS13
+  visit_target: contemporaneous_date_aligned_association
+  subject_weighting: equal
+  missing_data_primary: complete_cases_with_at_least_5_visits
+
+estimands:
+  baseline_and_technical_covariates:
+    rhs: >-
+      s(time_years, k = 4) + s(AGE, k = 4) + PTGENDER + PTEDUCAT +
+      APOE4 + s(ICV, k = 4) + COLPROT + SITE + MRI_FIELD_STRENGTH +
+      MRI_gap_days
+
+cross_fitting:
+  design_a_subject_folds: 5
+  design_b_visit_folds: 2
+  design_b_min_visits: 5
+
+inference:
+  alpha: 0.05
+  scalar_multiplicity: holm
+  global_test: subject_multiplier_max_abs
+  bootstrap_reps: 9999
+
+reproducibility:
+  seed: 20260727
+  record_input_checksum: true
+  freeze_config_before_outcome_analysis: true
+
+output:
+  directory: results/adni_mri_adas13_exploratory

@@ -1,0 +1,99 @@
+# Pre-specified ADNI analysis for the redesigned repeated-measures GCM.
+# Do not change this file after inspecting outcome results; create a dated copy.
+
+data:
+  path: data/ADNI_ANALYTIC_A_B_90d.csv
+  id_column: RID
+  date_column: EXAMDATE
+  baseline_age_column: AGE
+  age_visit_column: AGE_AT_VISIT
+  factor_columns: [PTGENDER, COLPROT, SITE, MRI_FIELD_STRENGTH]
+  factor_collapse_min_subjects:
+    SITE: 10
+  alignment:
+    verified_against_source_tables: true
+    primary_max_abs_gap_days: 90
+    sensitivity_max_abs_gap_days: 180
+    anchor: UC_Berkeley_AV45_EXAMDATE
+    deterministic_tie_break: minimum_absolute_gap_then_earlier_date
+  expected_ranges:
+    AGE: [40, 110]
+    AGE_AT_VISIT: [40, 110]
+    PTEDUCAT: [0, 30]
+    APOE4: [0, 2]
+    ICV: [1, 3000000]
+    MOCA: [0, 30]
+    MMSE: [0, 30]
+    CDRSB: [0, 18]
+    Ventricles: [0, 1000000]
+    Hippocampus: [0, 100000]
+    Entorhinal: [0, 100000]
+    AV45: [0, 10]
+    MRI_gap_days: [-90, 90]
+    CDR_gap_days: [-90, 90]
+    MMSE_gap_days: [-90, 90]
+    MOCA_gap_days: [-90, 90]
+  required_columns:
+    - RID
+    - EXAMDATE
+    - AGE
+    - AGE_AT_VISIT
+    - PTGENDER
+    - PTEDUCAT
+    - APOE4
+    - COLPROT
+    - SITE
+    - MRI_FIELD_STRENGTH
+    - MRI_gap_days
+    - CDR_gap_days
+    - MMSE_gap_days
+    - MOCA_gap_days
+    - ICV
+    - MOCA
+    - MMSE
+    - CDRSB
+    - Ventricles
+    - Hippocampus
+    - Entorhinal
+    - AV45
+
+analysis:
+  x_markers: [Ventricles, Hippocampus, Entorhinal]
+  y_outcome: AV45
+  visit_target: same-row visit-level association
+  subject_weighting: equal
+  missing_data_primary: common complete-case cohort
+
+estimands:
+  # Keeps the thesis question: association beyond contemporaneous cognition.
+  cognition_conditioned:
+    rhs: >-
+      s(MOCA, k = 4) + s(MMSE, k = 4) + s(CDRSB, k = 4) +
+      s(time_years, k = 4) + age_visit + PTGENDER + PTEDUCAT +
+      APOE4 + ICV + SITE +
+      MRI_gap_days + CDR_gap_days + MMSE_gap_days + MOCA_gap_days
+  # A sensitivity estimand that avoids conditioning on cognitive measures,
+  # which may be downstream of both MRI and amyloid pathology.
+  baseline_covariates:
+    rhs: >-
+      s(time_years, k = 4) + age_visit + PTGENDER + PTEDUCAT +
+      APOE4 + ICV + SITE + MRI_gap_days
+
+cross_fitting:
+  design_a_subject_folds: 5
+  design_b_visit_folds: 2
+  design_b_min_visits: 3
+
+inference:
+  alpha: 0.05
+  scalar_multiplicity: holm
+  global_test: subject_multiplier_max_abs
+  bootstrap_reps: 9999
+
+reproducibility:
+  seed: 20260726
+  record_input_checksum: true
+  freeze_config_before_outcome_analysis: true
+
+output:
+  directory: results/adni_redesign
