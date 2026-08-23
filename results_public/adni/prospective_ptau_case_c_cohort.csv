@@ -1,0 +1,3 @@
+current_window_days,n_subjects,history_slope_available,median_current_gap_days,median_history_gap_days,median_future_gap_days,p25_future_gap_days,p75_future_gap_days,median_current_ADAS13,median_prior_ADAS13,median_future_ADAS13
+30,199,53,0,384,526,372.5,739.5,11.67,11,12
+90,203,55,0,385,526,371.5,741,12,11,12.33

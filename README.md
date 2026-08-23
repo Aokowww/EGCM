@@ -28,6 +28,7 @@ repository reports the unsuccessful checks as well as the successful ones.
 | Case C, complete finite history | 30/1,000 rejections; passed, conservatively |
 | ADNI MRI-ADAS13 analysis | Exploratory association analysis; 647 participants and 4,406 observations |
 | ADNI plasma-Centiloid analysis | Exploratory incremental-information analysis; 664 participants and 758 observations |
+| ADNI plasma-future ADAS13 Case C | Exploratory prospective analysis; 199 participants in the primary cohort; p-tau217 retained unique signal |
 
 The complete Stage 2b gate failed because the random-slope setting had 65
 rejections in 1,000 repetitions and an exact 95% interval of 0.0505 to
@@ -111,12 +112,22 @@ negatively associated with ADAS13. These are contemporaneous conditional
 associations. They do not show that structural change preceded cognitive
 change, and they are not causal estimates.
 
+The prospective Case-C analysis asks whether plasma p-tau217, A-beta42/40,
+NfL and GFAP contain information about future ADAS-Cog13 beyond current and
+prior cognition, demographics, observed APOE4 context and timing. The primary
+30-day cohort contains 199 participants. The global four-marker test reached
+0.0001, and only p-tau217 retained a unique marker signal after conditioning
+on the other plasma measurements. A 90-day alignment sensitivity reproduced
+the marker distinction. These results describe conditional residual
+association and held-out prediction, not causality or clinical validation.
+
 The cohort construction, diagnostics and bounded interpretation are reported
 in:
 
 - [MRI-ADAS13 experiment report](docs/ADNI_MRI_ADAS13.md)
 - [earlier MRI-AV45 Design A analysis](docs/ADNI_MRI_AV45.md)
 - [plasma-Centiloid and common-cohort MRI comparison](docs/ADNI_PLASMA_AMYLOID.md)
+- [prospective plasma-future ADAS13 Case-C analysis](docs/ADNI_PROSPECTIVE_PTAU_CASE_C.md)
 - [public aggregate tables](results_public/adni)
 
 ## Repository layout
@@ -172,6 +183,10 @@ Rscript code/adni/prepare_adni_mri_adas13.R \
 
 Rscript code/adni/run_adni_redesign.R \
   configs/adni_mri_adas13_exploratory.yaml
+
+ADNI_RESTRICTED_ROOT=/path/to/private/adni \
+  Rscript code/adni/run_adni_prospective_ptau_case_c.R \
+  configs/adni_prospective_ptau_case_c.yaml
 ```
 
 Package requirements and environment notes are in

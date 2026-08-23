@@ -1,0 +1,21 @@
+# Prospective ADNI analysis for observed-history Case C with observed stable
+# subject context (APOE4). Participant-level data are resolved only through the
+# ADNI_RESTRICTED_ROOT environment variable and are never written to the repo.
+
+analysis:
+  current_windows_days: [30, 90]
+  primary_current_window_days: 30
+  history_min_days: 180
+  history_max_days: 1080
+  future_min_days: 270
+  future_max_days: 1278
+  target_future_days: 730
+  subject_folds: 5
+  bootstrap_reps: 9999
+  seed: 20260823
+  markers: [log_pT217, log_AB42_40, log_NfL, log_GFAP]
+
+outputs:
+  # The runner refuses paths inside the public repository. Set this variable to
+  # a private aggregate-output directory when a non-default location is needed.
+  environment_variable: ADNI_AGGREGATE_OUTPUT
