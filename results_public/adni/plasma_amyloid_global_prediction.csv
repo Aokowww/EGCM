@@ -1,0 +1,2 @@
+analysis,participants,global_multiplier_p,reference_rmse,reference_plus_plasma_rmse,relative_mse_reduction,bootstrap_p_one_sided
+plasma_to_amyloid_centiloid,664,0.0001,0.7942,0.6659,0.2969,0.0001

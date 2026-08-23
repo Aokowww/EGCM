@@ -1,0 +1,10 @@
+scenario,case,analysis,target_null,repetitions,rejections,rejection_rate,ci_low,ci_high,primary_gate,gate_pass
+B_observed_null,B,observed theta,true,1000,52,0.052,0.0390765,0.0676350,true,true
+B_sparse_proxy_null,B,sparse proxy for theta,true,1000,1000,1.000,0.9963179,1.0000000,false,
+B_dense_proxy_null,B,dense proxy for theta,true,1000,54,0.054,0.0408234,0.0698740,false,
+B_omit_theta_null,B,theta omitted,true,1000,1000,1.000,0.9963179,1.0000000,false,
+B_observed_alternative,B,observed theta,false,1000,1000,1.000,0.9963179,1.0000000,false,
+C_complete_history_null,C,complete history,true,1000,30,0.030,0.0203305,0.0425514,true,true
+C_partial_history_null,C,only Y lag,true,1000,1000,1.000,0.9963179,1.0000000,false,
+C_omit_history_null,C,history omitted,true,1000,1000,1.000,0.9963179,1.0000000,false,
+C_complete_history_alternative,C,complete history,false,1000,1000,1.000,0.9963179,1.0000000,false,

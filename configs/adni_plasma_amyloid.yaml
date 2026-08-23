@@ -1,0 +1,93 @@
+# Frozen before inspecting plasma--amyloid outcome results.
+data:
+  path: data/ADNI_PLASMA_AMYLOID_90d.csv
+  id_column: RID
+  date_column: EXAMDATE
+  baseline_age_column: AGE
+  age_visit_column: AGE_AT_PET
+  factor_columns: [PTGENDER, SITE, TRACER]
+  factor_collapse_min_subjects:
+    SITE: 50
+  alignment:
+    verified_against_source_tables: true
+    primary_max_abs_gap_days: 90
+    anchor: UC_Berkeley_amyloid_PET_SCANDATE
+    deterministic_tie_break: minimum_absolute_gap_then_earlier_date
+  expected_ranges:
+    AGE: [40, 110]
+    AGE_AT_PET: [40, 110]
+    PTEDUCAT: [0, 30]
+    APOE4: [0, 2]
+    MOCA: [0, 30]
+    MMSE: [0, 30]
+    CDRSB: [0, 18]
+    CENTILOIDS: [-100, 300]
+    pTau217: [0, 1000]
+    AB42_40: [0, 10]
+    NfL: [0, 1000]
+    GFAP: [0, 2500]
+    PLASMA_gap_days: [-90, 90]
+    CDR_gap_days: [-90, 90]
+    MMSE_gap_days: [-90, 90]
+    MOCA_gap_days: [-90, 90]
+  required_columns:
+    - RID
+    - EXAMDATE
+    - AGE
+    - AGE_AT_PET
+    - PTGENDER
+    - PTEDUCAT
+    - APOE4
+    - SITE
+    - TRACER
+    - MOCA
+    - MMSE
+    - CDRSB
+    - pTau217
+    - AB42_40
+    - NfL
+    - GFAP
+    - CENTILOIDS
+    - PLASMA_gap_days
+    - CDR_gap_days
+    - MMSE_gap_days
+    - MOCA_gap_days
+
+analysis:
+  x_markers: [pTau217, AB42_40, NfL, GFAP]
+  y_outcome: CENTILOIDS
+  visit_target: PET_anchored_same_window_association
+  subject_weighting: equal
+  missing_data_primary: common_complete_case_cohort
+
+estimands:
+  cognition_genetics_conditioned:
+    rhs: >-
+      s(MOCA, k = 4) + s(MMSE, k = 4) + s(CDRSB, k = 4) +
+      s(time_years, k = 4) + age_visit + PTGENDER + PTEDUCAT +
+      APOE4 + TRACER +
+      PLASMA_gap_days + CDR_gap_days + MMSE_gap_days + MOCA_gap_days
+  baseline_covariates:
+    rhs: >-
+      s(time_years, k = 4) + age_visit + PTGENDER + PTEDUCAT +
+      APOE4 + TRACER + PLASMA_gap_days
+
+cross_fitting:
+  design_a_subject_folds: 5
+  include_subject_re: false
+  design_b_visit_folds: 2
+  design_b_min_visits: 3
+
+inference:
+  alpha: 0.05
+  scalar_multiplicity: holm
+  global_test: subject_multiplier_max_abs
+  bootstrap_reps: 9999
+
+reproducibility:
+  seed: 20260813
+  record_input_checksum: true
+  freeze_config_before_outcome_analysis: true
+
+output:
+  directory: results/adni_plasma_amyloid

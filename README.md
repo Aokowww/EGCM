@@ -1,8 +1,11 @@
-# Cluster-GCM for repeated-measures data
+# Conditional independence testing beyond i.i.d. data
 
-This repository contains the current cluster-GCM redesign of EGCM, together
-with the code used for its simulation checks and exploratory ADNI analyses.
-The redesign changes the unit of inference from visits to subjects.
+This repository contains a taxonomy and residual-score framework for
+conditional-independence testing (CIT) with non-i.i.d. data, together with the
+code used for its simulation checks and exploratory ADNI analyses.  The
+branch for which a proof programme is developed is the
+many-independent-subject regime; the method changes the unit of inference
+from visits to subjects.
 
 The earlier thesis implementation is preserved in the
 [`v1.0-thesis-legacy`](https://github.com/Aokowww/EGCM/tree/v1.0-thesis-legacy)
@@ -19,8 +22,12 @@ repository reports the unsuccessful checks as well as the successful ones.
 |---|---|
 | Design A, core population null | 47/1,000 rejections; passed the frozen criterion |
 | Design A, six stress settings | Five passed; the random-slope setting failed |
-| Design B, two relevant null settings | 29/100 and 39/100 rejections |
+| Earlier Design B, estimated BLUP context | 29/100 and 39/100 rejections; sensitivity only |
+| Case B, observed subject context | 52/1,000 rejections; passed the extension criterion |
+| Case B, dense independent context proxy | 54/1,000 rejections; favourable heuristic only |
+| Case C, complete finite history | 30/1,000 rejections; passed, conservatively |
 | ADNI MRI-ADAS13 analysis | Exploratory association analysis; 647 participants and 4,406 observations |
+| ADNI plasma-Centiloid analysis | Exploratory incremental-information analysis; 664 participants and 758 observations |
 
 The complete Stage 2b gate failed because the random-slope setting had 65
 rejections in 1,000 repetitions and an exact 95% interval of 0.0505 to
@@ -30,7 +37,20 @@ not be described as generally calibrated under random slopes.
 Design B is included as a model-based sensitivity calculation. Its null
 rejection rates were too high for confirmatory use.
 
-## Statistical target
+## Taxonomy and statistical target
+
+The article separates five targets before selecting an estimator:
+
+- **A:** same-occasion CIT given observed visit-level context;
+- **B:** same-occasion CIT additionally given subject context;
+- **C:** same-occasion CIT given a finite observed history;
+- **D:** trajectory-level CIT given an observed context trajectory; and
+- **E:** trajectory-level CIT additionally given subject context.
+
+Cases D and E are future work.  Observed Case-B context and complete finite
+Case-C history can be appended to the conditioning set.  Estimated or latent
+context requires additional identification, convergence and leakage
+conditions; a sparse subject-effect proxy is not automatically valid.
 
 For independent subjects \(i=1,\ldots,N\), with repeated visits
 \(t=1,\ldots,m_i\), Design A examines the population-level same-visit null
@@ -63,6 +83,8 @@ intervals, integrity checks and file hashes:
 - [cluster-GCM method](docs/METHOD_CLUSTER_GCM.md)
 - [Stage 2a core-null validation](docs/VALIDATION_STAGE2A_CORE.md)
 - [Stage 2b stress validation](docs/VALIDATION_STAGE2B_STRESS.md)
+- [Case B/C frozen plan](docs/EXPERIMENT_PLAN_2026-08-23_NONIID_BC.md)
+- [Case B/C validation](docs/VALIDATION_2026-08-23_NONIID_BC.md)
 
 Short, machine-readable summaries are stored in
 [`results_public/simulation`](results_public/simulation). The full checkpoint
@@ -94,6 +116,7 @@ in:
 
 - [MRI-ADAS13 experiment report](docs/ADNI_MRI_ADAS13.md)
 - [earlier MRI-AV45 Design A analysis](docs/ADNI_MRI_AV45.md)
+- [plasma-Centiloid and common-cohort MRI comparison](docs/ADNI_PLASMA_AMYLOID.md)
 - [public aggregate tables](results_public/adni)
 
 ## Repository layout
@@ -131,6 +154,13 @@ The six-setting Stage 2b stress run is:
 ```bash
 Rscript code/simulation/simulate_adni_design_a_stress.R \
   configs/adni_simulation_stage2b_stress.yaml
+```
+
+The Case B/C extension is:
+
+```bash
+Rscript code/simulation/simulate_non_iid_bc.R \
+  configs/non_iid_bc_simulation.yaml
 ```
 
 ADNI analyses require an approved ADNI account and locally prepared source

@@ -1,0 +1,30 @@
+# Frozen Case B/C simulation configuration. The primary calibration rows are
+# B_observed_null and C_complete_history_null. Plug-in and omitted-context rows
+# are deliberately diagnostic: they show what happens when the scientific
+# conditioning information is estimated too noisily or left out.
+
+stage:
+  label: "Frozen non-i.i.d. CIT Case B/C simulation."
+
+simulation:
+  repetitions: 1000
+  subjects: 250
+  visits_b: 4
+  visits_c: 8
+  burn_in_c: 50
+  subject_folds: 5
+  alpha: 0.05
+  seed: 20260823
+  workers: 4
+  proxy_repeats_sparse: 4
+  proxy_repeats_dense: 2000
+  alternative_coefficient_b: 0.30
+  alternative_coefficient_c: 0.30
+
+gate:
+  minimum_repetitions: 1000
+  max_exact_95_high: 0.075
+  primary_scenarios: [B_observed_null, C_complete_history_null]
+
+output:
+  directory: results/non_iid_bc_simulation

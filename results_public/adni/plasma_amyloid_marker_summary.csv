@@ -1,0 +1,5 @@
+estimand,marker,participants,normalized_residual_covariance,p_value_holm,interpretation
+cognition_genetics_conditioned,pTau217,664,0.5047,9.1939e-16,unique_incremental_information_detected
+cognition_genetics_conditioned,AB42_40,664,-0.2640,8.2486e-12,unique_incremental_information_detected
+cognition_genetics_conditioned,NfL,664,-0.0979,0.1571,no_unique_incremental_information_detected
+cognition_genetics_conditioned,GFAP,664,0.0084,0.8559,no_unique_incremental_information_detected

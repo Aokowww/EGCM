@@ -1,0 +1,2 @@
+rows,participants,median_abs_mri_gap_days,plasma_unique_global_p,mri_unique_global_p,reference_rmse,plasma_rmse,mri_rmse,both_rmse,plasma_relative_mse_reduction,mri_relative_mse_reduction,both_relative_mse_reduction
+641,570,21,0.0001,0.2378,0.7942,0.6703,0.7931,0.6681,0.2878,0.0030,0.2925
