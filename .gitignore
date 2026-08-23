@@ -13,6 +13,9 @@ renv/python/
 results/
 plots/
 figures/
+article/compiled/
+!article/figures/
+!article/figures/*.pdf
 *.RData
 *.rds
 *.csv

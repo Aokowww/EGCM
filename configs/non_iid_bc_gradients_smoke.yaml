@@ -1,0 +1,19 @@
+stage:
+  label: "Smoke test for Case-B proxy-quality and B/C1 local power."
+
+simulation:
+  subjects: 60
+  visits_b: 4
+  visits_c: 6
+  burn_in_c: 20
+  subject_folds: 3
+  alpha: 0.05
+  seed: 20260824
+  workers: 1
+  proxy_repetitions: 3
+  power_repetitions: 3
+  proxy_measurements: [4, 100]
+  power_coefficients: [0.05, 0.20]
+
+output:
+  directory: results/non_iid_bc_gradients_smoke

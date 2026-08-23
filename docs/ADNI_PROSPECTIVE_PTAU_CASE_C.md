@@ -61,6 +61,13 @@ Adding observed history alone to the current-cognition model reduces MSE by
 defines the scientific question, not because it must increase predictive
 accuracy.
 
+In a subsequent 20-assignment subject-fold sensitivity analysis, the unique
+p-tau217 covariance was positive in all assignments (0.230 to 0.351). A
+conservative four-marker Bonferroni value was below 0.05 in 19/20 assignments.
+The p-tau217 MSE reduction was positive in all 20 (14.6% to 26.6%). These
+results support directional and predictive stability while recording mild
+threshold sensitivity in the smaller cohort.
+
 ## Interpretation boundary
 
 The residual score is a conditional covariance moment, not an omnibus proof

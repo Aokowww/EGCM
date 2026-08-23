@@ -376,6 +376,72 @@ analyse_cohort <- function(data, current_window) {
   )
 }
 
+analyse_primary_split <- function(data, current_window, split_index) {
+  seed <- as.integer(spec$seed) + as.integer(current_window) +
+    10000L + split_index
+  folds <- make_subject_folds(
+    data$RID, as.integer(spec$subject_folds), seed
+  )
+  marker_names <- unlist(spec$markers, use.names = FALSE)
+  marker_terms <- paste0("s(", marker_names, ", k = 4)")
+  base_rhs <- paste(c(
+    "s(age_index, k = 4)", "female", "s(EDUC, k = 4)", "APOE4",
+    "s(current_ADAS13, k = 5)", "current_gap_days", "future_gap_days"
+  ), collapse = " + ")
+  history_rhs <- paste(c(
+    base_rhs, "s(prior_ADAS13, k = 5)", "history_gap_days"
+  ), collapse = " + ")
+
+  target_index <- match("log_pT217", marker_names)
+  if (is.na(target_index)) {
+    stop("The split-stability analysis requires log_pT217.", call. = FALSE)
+  }
+  unique_rhs <- paste(
+    c(history_rhs, marker_terms[-target_index]), collapse = " + "
+  )
+  y_fit <- crossfit_residuals(
+    data, "future_ADAS13", unique_rhs, folds,
+    prediction = "population", include_subject_re = FALSE
+  )
+  x_fit <- crossfit_residuals(
+    data, "log_pT217", unique_rhs, folds,
+    prediction = "population", include_subject_re = FALSE
+  )
+  scores <- subject_score_matrix(
+    data$RID,
+    matrix(x_fit$residual, ncol = 1L,
+           dimnames = list(NULL, "log_pT217")),
+    y_fit$residual
+  )
+  test <- scalar_cluster_tests(scores)
+
+  reference <- crossfit_residuals(
+    data, "future_ADAS13", history_rhs, folds,
+    prediction = "population", include_subject_re = FALSE
+  )
+  full_rhs <- paste(c(history_rhs, marker_terms[target_index]), collapse = " + ")
+  full <- crossfit_residuals(
+    data, "future_ADAS13", full_rhs, folds,
+    prediction = "population", include_subject_re = FALSE
+  )
+  reference_mse <- mean(reference$residual^2)
+  full_mse <- mean(full$residual^2)
+
+  data.frame(
+    split = split_index,
+    seed = seed,
+    current_window_days = current_window,
+    normalized_residual_covariance = test$estimate /
+      (stats::sd(x_fit$residual) * stats::sd(y_fit$residual)),
+    p_value = test$p_value,
+    p_bonferroni_four_markers = pmin(1, 4 * test$p_value),
+    reference_rmse = sqrt(reference_mse),
+    reference_plus_ptau217_rmse = sqrt(full_mse),
+    relative_mse_reduction = (reference_mse - full_mse) / reference_mse,
+    stringsAsFactors = FALSE
+  )
+}
+
 plasma <- load_object("UPENN_PLASMA_FUJIREBIO_QUANTERIX")
 adas <- load_object("ADAS")
 adsl <- load_object("ADSL")
@@ -398,10 +464,79 @@ adas <- adas[order(adas$RID, adas$VISDATE), ]
 
 demographics <- make_demographics(adsl, apoeres)
 windows <- as.integer(unlist(spec$current_windows_days, use.names = FALSE))
-analyses <- lapply(windows, function(window) {
-  message("Preparing and analysing current window +/-", window, " days.")
-  analyse_cohort(prepare_cohort(window, plasma, adas, demographics), window)
+cohorts <- lapply(windows, function(window) {
+  prepare_cohort(window, plasma, adas, demographics)
 })
+analyses <- lapply(seq_along(windows), function(index) {
+  window <- windows[[index]]
+  message("Preparing and analysing current window +/-", window, " days.")
+  analyse_cohort(cohorts[[index]], window)
+})
+
+primary_window <- as.integer(spec$primary_current_window_days)
+primary_index <- match(primary_window, windows)
+if (is.na(primary_index)) {
+  stop("The primary current window is absent from current_windows_days.",
+       call. = FALSE)
+}
+split_repetitions <- if (is.null(spec$split_stability_repetitions)) {
+  0L
+} else {
+  as.integer(spec$split_stability_repetitions)
+}
+split_stability <- split_stability_summary <- NULL
+if (split_repetitions > 0L) {
+  message(
+    "Running ", split_repetitions,
+    " repeated subject-fold assignments for the primary C1 analysis."
+  )
+  split_stability <- do.call(rbind, lapply(
+    seq_len(split_repetitions),
+    function(index) analyse_primary_split(
+      cohorts[[primary_index]], primary_window, index
+    )
+  ))
+  median_covariance <- stats::median(
+    split_stability$normalized_residual_covariance
+  )
+  split_stability_summary <- rbind(
+    data.frame(
+      analysis = "prospective_ptau217_unique_information",
+      quantity = "normalized_residual_covariance",
+      split_repetitions = split_repetitions,
+      median_value = median_covariance,
+      minimum_value = min(split_stability$normalized_residual_covariance),
+      maximum_value = max(split_stability$normalized_residual_covariance),
+      sign_agreement_rate = mean(
+        sign(split_stability$normalized_residual_covariance) ==
+          sign(median_covariance)
+      ),
+      median_adjusted_p = stats::median(
+        split_stability$p_bonferroni_four_markers
+      ),
+      maximum_adjusted_p = max(
+        split_stability$p_bonferroni_four_markers
+      ),
+      detection_rate = mean(
+        split_stability$p_bonferroni_four_markers < 0.05
+      ),
+      stringsAsFactors = FALSE
+    ),
+    data.frame(
+      analysis = "prospective_ptau217_prediction",
+      quantity = "relative_mse_reduction",
+      split_repetitions = split_repetitions,
+      median_value = stats::median(split_stability$relative_mse_reduction),
+      minimum_value = min(split_stability$relative_mse_reduction),
+      maximum_value = max(split_stability$relative_mse_reduction),
+      sign_agreement_rate = mean(split_stability$relative_mse_reduction > 0),
+      median_adjusted_p = NA_real_,
+      maximum_adjusted_p = NA_real_,
+      detection_rate = NA_real_,
+      stringsAsFactors = FALSE
+    )
+  )
+}
 
 bind_result <- function(name) do.call(rbind, lapply(analyses, `[[`, name))
 utils::write.csv(bind_result("cohort"), file.path(output_abs, "cohort_audit.csv"),
@@ -416,6 +551,14 @@ utils::write.csv(bind_result("prediction"),
                  file.path(output_abs, "prediction_comparisons.csv"), row.names = FALSE)
 utils::write.csv(bind_result("nuisance"),
                  file.path(output_abs, "nuisance_diagnostics.csv"), row.names = FALSE)
+if (split_repetitions > 0L) {
+  utils::write.csv(split_stability,
+                   file.path(output_abs, "split_stability_results.csv"),
+                   row.names = FALSE)
+  utils::write.csv(split_stability_summary,
+                   file.path(output_abs, "split_stability_summary.csv"),
+                   row.names = FALSE)
+}
 
 writeLines(c(
   "Prospective plasma biomarker -> future ADAS-Cog13 aggregate analysis.",
@@ -423,6 +566,8 @@ writeLines(c(
   paste0("Primary current-alignment window: +/-",
          spec$primary_current_window_days, " days."),
   "Inference: subject-held-out, one eligible index visit per subject.",
+  paste0("Repeated subject-fold sensitivity assignments: ",
+         split_repetitions, "."),
   "Outputs contain aggregate statistics only; no participant rows or identifiers.",
   "Interpretation boundary: conditional residual association and held-out prediction, not causality or clinical validation."
 ), file.path(output_abs, "STATUS.txt"))

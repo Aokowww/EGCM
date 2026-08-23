@@ -39,6 +39,12 @@ In participant-held-out prediction, adding the plasma block reduced RMSE from
 0.7942 to 0.6659, equivalent to a 29.69% reduction in mean squared error. The
 participant bootstrap one-sided p-value was 0.0001.
 
+A subsequent 20-assignment subject-fold sensitivity analysis preserved the
+unique-marker distinction in every assignment: p-tau217 and A-beta42/40 were
+Holm-detected in 20/20, while NfL and GFAP were detected in 0/20. The plasma
+MSE reduction was positive in 20/20 assignments (25.4% to 29.3%). This checks
+split stability within the same cohort and is not an external replication.
+
 ## Common-cohort MRI comparison
 
 A separate comparison retained 641 observations from 570 participants with a

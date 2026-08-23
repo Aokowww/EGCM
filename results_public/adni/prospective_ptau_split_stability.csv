@@ -1,0 +1,3 @@
+"analysis","quantity","split_repetitions","median_value","minimum_value","maximum_value","sign_agreement_rate","median_adjusted_p","maximum_adjusted_p","detection_rate"
+"prospective_ptau217_unique_information","normalized_residual_covariance",20,0.296939975353845,0.23024711844842,0.351104347940544,1,0.00161402837946817,0.097963705919466,0.95
+"prospective_ptau217_prediction","relative_mse_reduction",20,0.210097842667302,0.1460680391214,0.266365785930694,1,NA,NA,NA

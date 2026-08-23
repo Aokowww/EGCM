@@ -1,0 +1,14 @@
+"scenario","experiment","case","parameter","parameter_value","repetitions","rejections","rejection_rate","monte_carlo_se","exact_95_low","exact_95_high","mean_score"
+"B_proxy_m4_null","B proxy-quality null","B","auxiliary_measurements",4,1000,999,0.999,0.000999499874937461,0.994441075720173,0.999974682512509,0.198035911536375
+"B_proxy_m20_null","B proxy-quality null","B","auxiliary_measurements",20,1000,292,0.292,0.0143783170086071,0.263965885430584,0.321264433058459,0.0480776598905977
+"B_proxy_m100_null","B proxy-quality null","B","auxiliary_measurements",100,1000,72,0.072,0.00817410545564467,0.0567586875545617,0.0898157491753508,0.00999347203143226
+"B_proxy_m500_null","B proxy-quality null","B","auxiliary_measurements",500,1000,59,0.059,0.00745110730026081,0.0452133544027966,0.0754490730842408,0.00201975969903865
+"B_proxy_m2000_null","B proxy-quality null","B","auxiliary_measurements",2000,1000,58,0.058,0.00739161687318817,0.0443328602528207,0.0743364953823517,0.000403901037820512
+"B_observed_delta0.05","B observed-context power","B","residual_covariance_coefficient",0.05,500,172,0.344,0.0212444816364156,0.302390900451294,0.387466520395941,0.0497834545349945
+"B_observed_delta0.1","B observed-context power","B","residual_covariance_coefficient",0.1,500,432,0.864,0.0153299706457645,0.830796641378632,0.892819674143012,0.0998081759530769
+"B_observed_delta0.2","B observed-context power","B","residual_covariance_coefficient",0.2,500,500,1,0,0.992649389948092,1,0.20017010993603
+"B_observed_delta0.3","B observed-context power","B","residual_covariance_coefficient",0.3,500,500,1,0,0.992649389948092,1,0.300275800278279
+"C_complete_delta0.05","C1 complete-history power","C1","residual_covariance_coefficient",0.05,500,301,0.602,0.0218904545407353,0.557595862806789,0.645190743177359,0.0499136644589247
+"C_complete_delta0.1","C1 complete-history power","C1","residual_covariance_coefficient",0.1,500,498,0.996,0.00282276460230038,0.9856259214378,0.99951521382371,0.100181505451066
+"C_complete_delta0.2","C1 complete-history power","C1","residual_covariance_coefficient",0.2,500,500,1,0,0.992649389948092,1,0.200444943719513
+"C_complete_delta0.3","C1 complete-history power","C1","residual_covariance_coefficient",0.3,500,500,1,0,0.992649389948092,1,0.300835133627065

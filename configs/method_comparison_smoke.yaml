@@ -1,0 +1,25 @@
+stage:
+  label: "Smoke A1 inferential-unit comparison"
+
+simulation:
+  repetitions_null: 20
+  repetitions_power: 10
+  subjects: 80
+  visits: 6
+  subject_folds: 4
+  alpha: 0.05
+  seed: 20260824
+  workers: 2
+  ar1: 0.55
+  random_intercept_sd: 0.75
+  random_slope_sd_base: 0.00
+  random_slope_sd_stress: 0.30
+  alternative_coefficients: [0.10, 0.30]
+
+gate:
+  minimum_null_repetitions: 1000
+  maximum_exact_95_high: 0.075
+  primary_method: "subject-score GCM"
+
+output:
+  directory: "results/method_comparison_smoke"

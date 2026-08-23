@@ -1,0 +1,20 @@
+# Frozen extension of the prospective Case-C1 experiment. It preserves the
+# original cohort and model specification and adds repeated subject-fold
+# sensitivity analysis after the primary result was fixed.
+
+analysis:
+  current_windows_days: [30, 90]
+  primary_current_window_days: 30
+  history_min_days: 180
+  history_max_days: 1080
+  future_min_days: 270
+  future_max_days: 1278
+  target_future_days: 730
+  subject_folds: 5
+  bootstrap_reps: 9999
+  split_stability_repetitions: 20
+  seed: 20260823
+  markers: [log_pT217, log_AB42_40, log_NfL, log_GFAP]
+
+outputs:
+  environment_variable: ADNI_AGGREGATE_OUTPUT
