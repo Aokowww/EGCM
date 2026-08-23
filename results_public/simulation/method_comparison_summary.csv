@@ -1,0 +1,19 @@
+scenario,delta,method,repetitions,rejections,rejection_rate,exact_95_low,exact_95_high,primary_gate,gate_pass
+alternative_delta_0.05,0.05,oracle subject score,500,91,0.182,0.149144,0.218668,false,
+alternative_delta_0.10,0.10,oracle subject score,500,229,0.458,0.413689,0.502810,false,
+alternative_delta_0.20,0.20,oracle subject score,500,471,0.942,0.917762,0.960816,false,
+alternative_delta_0.30,0.30,oracle subject score,500,500,1.000,0.992649,1.000000,false,
+base_null,0.00,oracle subject score,1000,57,0.057,0.043454,0.073223,false,
+random_slope_null,0.00,oracle subject score,1000,57,0.057,0.043454,0.073223,false,
+alternative_delta_0.05,0.05,subject-score GCM,500,88,0.176,0.143619,0.212268,false,
+alternative_delta_0.10,0.10,subject-score GCM,500,228,0.456,0.411716,0.500807,false,
+alternative_delta_0.20,0.20,subject-score GCM,500,471,0.942,0.917762,0.960816,false,
+alternative_delta_0.30,0.30,subject-score GCM,500,500,1.000,0.992649,1.000000,false,
+base_null,0.00,subject-score GCM,1000,60,0.060,0.046095,0.076560,true,false
+random_slope_null,0.00,subject-score GCM,1000,55,0.055,0.041699,0.070992,true,true
+alternative_delta_0.05,0.05,visit-iid GCM,500,187,0.374,0.331443,0.418057,false,
+alternative_delta_0.10,0.10,visit-iid GCM,500,368,0.736,0.695040,0.774144,false,
+alternative_delta_0.20,0.20,visit-iid GCM,500,494,0.988,0.974065,0.995584,false,
+alternative_delta_0.30,0.30,visit-iid GCM,500,500,1.000,0.992649,1.000000,false,
+base_null,0.00,visit-iid GCM,1000,216,0.216,0.190861,0.242823,false,
+random_slope_null,0.00,visit-iid GCM,1000,240,0.240,0.213827,0.267713,false,

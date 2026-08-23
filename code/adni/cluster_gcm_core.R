@@ -79,7 +79,7 @@ make_equal_subject_weights <- function(id) {
 
 fit_predict_gam <- function(train, test, outcome, rhs,
                             prediction = c("population", "subject"),
-                            case_weights = NULL) {
+                            case_weights = NULL, include_subject_re = TRUE) {
   require_namespace("mgcv")
   prediction <- match.arg(prediction)
   if (is.null(case_weights)) {
@@ -91,7 +91,11 @@ fit_predict_gam <- function(train, test, outcome, rhs,
          call. = FALSE)
   }
   train$.case_weight <- case_weights
-  formula <- make_gam_formula(outcome, rhs)
+  formula <- if (isTRUE(include_subject_re)) {
+    make_gam_formula(outcome, rhs)
+  } else {
+    stats::as.formula(paste0("`", outcome, "` ~ ", rhs))
+  }
   fit <- mgcv::gam(
     formula,
     data = train,
@@ -102,7 +106,7 @@ fit_predict_gam <- function(train, test, outcome, rhs,
   )
 
   newdata <- test
-  if (prediction == "population") {
+  if (prediction == "population" && isTRUE(include_subject_re)) {
     # Held-out subject levels are intentionally replaced before prediction.
     # The random-effect term is excluded, so this replacement has no effect on
     # the population prediction and avoids new-factor-level failures.
@@ -126,7 +130,7 @@ fit_predict_gam <- function(train, test, outcome, rhs,
 
 crossfit_residuals <- function(data, outcome, rhs, folds,
                                prediction = c("population", "subject"),
-                               case_weights = NULL) {
+                               case_weights = NULL, include_subject_re = TRUE) {
   prediction <- match.arg(prediction)
   if (is.null(case_weights)) {
     case_weights <- rep(1, nrow(data))
@@ -147,7 +151,8 @@ crossfit_residuals <- function(data, outcome, rhs, folds,
       outcome = outcome,
       rhs = rhs,
       prediction = prediction,
-      case_weights = case_weights[train_rows]
+      case_weights = case_weights[train_rows],
+      include_subject_re = include_subject_re
     )
     prediction_value[test_rows] <- fitted$prediction
     residual[test_rows] <- data[[outcome]][test_rows] - fitted$prediction
@@ -262,7 +267,8 @@ nuisance_diagnostics <- function(data, x_markers, y_outcome,
 run_design_a <- function(data, x_markers, y_outcome, rhs, id_col,
                          subject_folds = 5L, bootstrap_reps = 9999L,
                          seed = 20260726L,
-                         equal_subject_nuisance_weights = TRUE) {
+                         equal_subject_nuisance_weights = TRUE,
+                         include_subject_re = TRUE) {
   assert_columns(data, c(id_col, x_markers, y_outcome))
   data$.subject_re <- factor(as.character(data[[id_col]]))
   folds <- make_subject_folds(data[[id_col]], k = subject_folds, seed = seed)
@@ -274,14 +280,14 @@ run_design_a <- function(data, x_markers, y_outcome, rhs, id_col,
 
   y_fit <- crossfit_residuals(
     data, y_outcome, rhs, folds, prediction = "population",
-    case_weights = case_weights
+    case_weights = case_weights, include_subject_re = include_subject_re
   )
   x_fits <- setNames(lapply(
     x_markers,
     function(marker) {
       crossfit_residuals(
         data, marker, rhs, folds, prediction = "population",
-        case_weights = case_weights
+        case_weights = case_weights, include_subject_re = include_subject_re
       )
     }
   ), x_markers)

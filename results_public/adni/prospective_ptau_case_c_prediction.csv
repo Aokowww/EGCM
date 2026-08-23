@@ -1,0 +1,9 @@
+current_window_days,comparison,n_subjects,reference_rmse,extended_rmse,relative_mse_reduction,paired_mse_ci_lower,paired_mse_ci_upper,bootstrap_p_one_sided
+30,current_plus_history,199,5.9081,5.8510,0.0193,-1.5047,2.8855,0.2767
+30,current_plus_all_markers,199,5.9081,5.1916,0.2279,1.4899,15.3901,0.0080
+30,history_plus_all_markers,199,5.8510,5.3950,0.1498,-1.0528,11.7625,0.0574
+30,history_plus_pTau217,199,5.8510,5.3867,0.1524,-0.4962,11.0056,0.0375
+90,current_plus_history,203,6.1324,5.8856,0.0789,-0.0928,6.5203,0.0303
+90,current_plus_all_markers,203,6.1324,5.4593,0.2075,0.8260,15.2792,0.0136
+90,history_plus_all_markers,203,5.8856,5.3756,0.1658,-0.1342,11.9825,0.0286
+90,history_plus_pTau217,203,5.8856,5.3511,0.1734,0.3337,12.2306,0.0186

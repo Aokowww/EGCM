@@ -1,0 +1,14 @@
+# Repeated subject-fold sensitivity analysis for the selected plasma--amyloid
+# experiment. The participant-level analytic CSV is excluded from version
+# control; only aggregate stability summaries are publishable.
+
+base_config: configs/adni_plasma_amyloid.yaml
+
+analysis:
+  split_repetitions: 20
+  subject_folds: 5
+  seed: 2026082400
+
+outputs:
+  environment_variable: ADNI_AGGREGATE_OUTPUT
+  default_subdirectory: plasma_amyloid_split_stability

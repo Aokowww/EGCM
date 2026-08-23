@@ -211,7 +211,8 @@ for (estimand_name in names(config$estimands)) {
     id_col = id_col,
     subject_folds = config$cross_fitting$design_a_subject_folds,
     bootstrap_reps = config$inference$bootstrap_reps,
-    seed = config$reproducibility$seed
+    seed = config$reproducibility$seed,
+    include_subject_re = !isFALSE(config$cross_fitting$include_subject_re)
   )
 
   design_a$marker_tests$estimand <- estimand_name

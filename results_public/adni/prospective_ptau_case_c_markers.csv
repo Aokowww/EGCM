@@ -1,0 +1,11 @@
+current_window_days,test,marker,n_subjects,normalized_residual_covariance,p_value,p_holm,max_abs_score_share,leave_one_out_p_max
+30,global,all_plasma_markers,199,,0.0001,,,
+30,unique_given_other_markers,log_pT217,199,0.3212,0.0003066,0.0012265,0.0767,0.0005593
+30,unique_given_other_markers,log_AB42_40,199,0.0965,0.1329482,0.3988445,0.1060,0.2651665
+30,unique_given_other_markers,log_NfL,199,0.0572,0.4317472,0.7361724,0.0520,0.6889011
+30,unique_given_other_markers,log_GFAP,199,-0.0545,0.3680862,0.7361724,0.0375,0.5413967
+90,global,all_plasma_markers,203,,0.0002,,,
+90,unique_given_other_markers,log_pT217,203,0.2850,0.0000950,0.0003800,0.0618,0.0001744
+90,unique_given_other_markers,log_AB42_40,203,0.1297,0.0692536,0.2077607,0.1106,0.1270882
+90,unique_given_other_markers,log_NfL,203,0.0592,0.3565311,0.7130621,0.0454,0.5600766
+90,unique_given_other_markers,log_GFAP,203,-0.0150,0.8215014,0.8215014,0.0583,0.9641193

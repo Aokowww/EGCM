@@ -1,11 +1,10 @@
 cff-version: 1.2.0
-message: "If you use this code, please cite the repository and the accompanying thesis."
-title: "Cluster-GCM for Population-Level Conditional Independence in Repeated-Measures Data"
+message: "If you use this code, please cite the repository and the accompanying manuscript or thesis."
+title: "Conditional Independence Testing beyond i.i.d. Data: A Taxonomy and Residual-Score Framework"
 authors:
   - family-names: "Huo"
     given-names: "Qingzi"
-version: "2.0.0"
-date-released: 2026-07-31
+version: "3.0.0-dev"
 repository-code: "https://github.com/Aokowww/EGCM"
 license: MIT
 preferred-citation:

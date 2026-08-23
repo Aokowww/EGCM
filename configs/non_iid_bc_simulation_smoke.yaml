@@ -1,0 +1,25 @@
+stage:
+  label: "Smoke test for the non-i.i.d. CIT Case B/C simulation."
+
+simulation:
+  repetitions: 20
+  subjects: 250
+  visits_b: 4
+  visits_c: 8
+  burn_in_c: 50
+  subject_folds: 5
+  alpha: 0.05
+  seed: 20260823
+  workers: 4
+  proxy_repeats_sparse: 4
+  proxy_repeats_dense: 2000
+  alternative_coefficient_b: 0.30
+  alternative_coefficient_c: 0.30
+
+gate:
+  minimum_repetitions: 20
+  max_exact_95_high: 0.25
+  primary_scenarios: [B_observed_null, C_complete_history_null]
+
+output:
+  directory: results/non_iid_bc_simulation_smoke

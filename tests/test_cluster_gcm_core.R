@@ -48,6 +48,23 @@ stopifnot(
   a$global_test$p_value <= 1
 )
 
+a_no_subject_re <- run_design_a(
+  synthetic,
+  x_markers = c("X1", "X2"),
+  y_outcome = "Y",
+  rhs = "s(z, k = 5) + visit",
+  id_col = "RID",
+  subject_folds = 4L,
+  bootstrap_reps = 99L,
+  seed = 7L,
+  include_subject_re = FALSE
+)
+stopifnot(
+  a_no_subject_re$design == "A",
+  nrow(a_no_subject_re$scores) == n_subjects,
+  all(is.finite(a_no_subject_re$marker_tests$statistic))
+)
+
 b <- run_design_b(
   synthetic,
   x_markers = c("X1", "X2"),
