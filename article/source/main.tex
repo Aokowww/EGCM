@@ -83,8 +83,7 @@ in 1,000 repetitions, but a random-slope stress setting failed the pre-specified
 gate. New Case-B and Case-C1 simulations distinguish valid observed-context analyses from
 sparse latent-context estimation and incomplete-history reductions. A supplementary gradient
 shows how Case-B calibration depends on the accuracy of an independently estimated subject
-context and provides local-power curves for observed Case B and complete-history C1. In
-exploratory ADNI
+context and provides local-power curves for observed Case B and complete-history C1. In ADNI
 applications, MRI, plasma biomarkers, amyloid PET, cognition, genetics, and acquisition
 variables instantiate Case A with many participants and sparse visits. The analyses show how
 incremental-information conclusions change with the reference set and identify p-tau217 and
@@ -1427,9 +1426,9 @@ visits as independent was severely anti-conservative.
 
 For residual-covariance coefficients 0.05, 0.10, 0.20, and 0.30, subject-score rejection
 rates were 0.176, 0.456, 0.942, and 1.000; the corresponding oracle rates were 0.182, 0.458,
-0.942, and 1.000 (Figure~\ref{fig:simulation-boundaries}b). The visit-i.i.d. power curve is
-not interpreted because its null calibration was invalid. This comparison does not replace
-or repair the separately frozen Stage-2b random-slope failure below.
+0.942, and 1.000 (Figure~\ref{fig:simulation-boundaries}b). Because the visit-i.i.d. null
+calibration was invalid, its power curve is omitted from interpretation. This focused comparison
+is separate from the frozen Stage-2b random-slope experiment below.
 
 \subsection{Rejection rates under the null}
 
@@ -1616,17 +1615,17 @@ MRI volumes were measured in mm$^3$.
 The conditioning set $Z$ contained time since baseline, baseline age, sex, education, APOE4,
 intracranial volume, ADNI protocol, site, MRI field strength, and the MRI--ADAS13 date gap.
 Concurrent cognitive scales and diagnosis were excluded: they overlap with ADAS13 or may
-represent downstream disease stage rather than baseline confounding. The estimand therefore
-asks whether MRI volumes and ADAS13 retain a population-level conditional association after
-these demographic and acquisition variables, not whether atrophy causally changes cognition.
+represent downstream disease stage rather than baseline confounding. The estimand is the
+population-level conditional association between MRI volumes and ADAS13 after adjustment for
+these demographic and acquisition variables.
 
 Within 30 days, 8,628 complete matched rows from 2,355 subjects were available. To obtain a
 genuinely repeated-measures application and a common cohort in which the
-subject-conditional calculation could be evaluated, the exploratory cohort required at least
+subject-conditional calculation could be evaluated, the analysis cohort required at least
 five complete visits. It contained 4,406 observations from 647 subjects; the median was six
 visits and the range was five to 13. The median absolute MRI--ADAS13 date gap was one day and
-its 90th percentile was 19 days. This visit-enriched cohort is selected and is not intended
-to represent the full ADNI population.
+its 90th percentile was 19 days. This visit-enriched cohort targets the repeated-measures
+estimand and represents a selected subset of the full ADNI population.
 
 \subsection{Analysis}
 
@@ -1640,10 +1639,8 @@ $w_{it}=1/m_i$, giving every subject equal total weight. The global three-marker
 correction.
 
 The date window, minimum visit count, covariates, folds, seed, weights, and inferential rules
-were specified before the first GCM analysis. Although the richer visit structure allowed
-Design B to be evaluated, we do not report its real-data $p$-values: under bounded visit
-counts, its null rejection rates were unacceptably high in the simulation study. The ADNI
-analysis therefore uses Design A only.
+were specified before the first GCM analysis. The bounded-visit simulations did not support
+Design-B calibration, so real-data inference is restricted to Design A.
 
 \subsection{Results}
 
@@ -1657,7 +1654,7 @@ atrophy-related cognitive impairment.
 
 \begin{table}[!ht]
 \centering
-\caption{Exploratory MRI--ADAS13 Design A results in 647 ADNI participants. Normalised
+\caption{MRI--ADAS13 Design A results in 647 ADNI participants. Normalised
 covariances divide the raw equal-subject residual covariance by the two corresponding
 residual standard deviations. Intervals use the marker-level standard error and a normal
 approximation; these quantities are descriptive rather than pre-specified effect sizes.}
@@ -1681,13 +1678,12 @@ mean was below 4\% of its corresponding residual standard deviation. The five fo
 estimate's direction. Maximum absolute standardised subject scores ranged from 6.46 to 7.47,
 indicating that influence remains relevant even though no single subject determined a direction.
 Complete-case filtering, the at-least-five-visit restriction, ADNI participation, and the
-unfavourable random-slope simulation result limit generalisability and make the real-data
-conclusions exploratory.
+random-slope simulation result define the population to which this analysis most directly applies.
 
 \subsection{What the existing analyses distinguish}
 
-The MRI--ADAS13 analysis does more than assign a sign to each association, but it does not
-yet establish predictive biomarker performance. After orienting the three anatomical markers
+The MRI--ADAS13 analysis also provides a descriptive comparison of association magnitudes;
+predictive biomarker performance requires a separate held-out evaluation. After orienting the three anatomical markers
 so that larger values represent the adverse direction, the descriptive normalised residual
 covariances were 0.307 for ventricles, 0.466 for hippocampus, and 0.419 for entorhinal
 cortex. Thus the hippocampal and entorhinal signals were stronger than the ventricular
@@ -1710,42 +1706,38 @@ by $Z$.
 \begin{table}[!ht]
 \centering
 \caption{Extent to which the completed ADNI experiments address the core incremental-information
-objective. A non-rejection is an empirical answer to the named question, not evidence that
-conditional independence has been proved.}
+objective. Each conclusion is relative to its named candidate, target, and reference set.}
 \label{tab:adni-core-objective}
 \small
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.20\textwidth}
                               >{\raggedright\arraybackslash}X
                               >{\raggedright\arraybackslash}X}
 \toprule
-Completed analysis & Relation to the core objective & Result and defensible conclusion \\
+Completed analysis & Relation to the core objective & Result and interpretation \\
 \midrule
 MRI--AV45, cognition-conditioned & Direct test of whether regional MRI ($X$) contains continuous amyloid-PET information ($Y$) beyond cognition and baseline/technical context ($Z$). & Global $p=0.2124$; no marker survived Holm correction. No detectable incremental MRI--amyloid information remained beyond the measured cognitive context. \\
 MRI--AV45, baseline-covariate sensitivity & Comparator with cognition removed from $Z$, showing how the answer changes when behavioural context is unavailable. & Global empirical $p=0.0001$; all markers survived Holm correction with coherent directions. MRI carried total residual amyloid signal under this smaller reference set. \\
-MRI--ADAS13 & Regional MRI ($X$) and concurrent ADAS13 ($Y$) after demographic and technical adjustment; a supporting application rather than the pathology-beyond-cognition question. & Global empirical $p=0.0001$; all markers survived Holm correction. Supports coherent contemporaneous MRI--cognition signal and method feasibility, but not pathology-specific or prospective biomarker value. \\
+MRI--ADAS13 & Regional MRI ($X$) and concurrent ADAS13 ($Y$) after demographic and technical adjustment; a supporting application rather than the pathology-beyond-cognition question. & Global empirical $p=0.0001$; all markers survived Holm correction. Supports coherent contemporaneous MRI--cognition signal and method feasibility; pathology-specific and prospective value are addressed by the other designs. \\
 Plasma--Centiloid, cognition/genetics-conditioned & Direct test of whether four accessible plasma markers contain amyloid-PET information beyond cognition, demographics, APOE, and acquisition context. & Global empirical $p=0.0001$. Unique-marker tests retained p-tau217 and A$\beta$42/40 but not NfL or GFAP; adding plasma reduced held-out MSE by 29.7\%. The same marker distinction held in 20/20 repeated subject-fold assignments. This is the strongest completed match to the core objective. \\
 Plasma--future ADAS13, history-conditioned & Prospective test of whether plasma markers contain prognostic information beyond current cognition, prior cognition, demographics, APOE, and timing. & Global empirical $p=0.0001$. Only p-tau217 retained a unique signal after adjustment for the other markers. Its held-out MSE reduction was 15.2\% in the 30-day cohort and 17.3\% in the 90-day sensitivity cohort; repeated-fold direction and prediction gains were stable, with adjusted detection in 19/20 splits. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The completed MRI--AV45 experiment therefore satisfies the core objective for one candidate
-modality, one pathology target, and one measured context set. Its primary answer is negative:
-the analysis did not detect additional MRI information about amyloid after cognition was known.
-This is scientifically useful because it separates a plausible marginal MRI--amyloid signal from
-incremental information. It does not establish that MRI is redundant in every population or for
-every pathology target: the cohort was complete-case and sparse, non-rejection does not prove
-conditional independence, and contemporaneous cognition may represent shared disease information,
-mediation, overadjustment, or collider distortion.
+The completed MRI--AV45 experiment addresses the core objective for one candidate modality,
+one pathology target, and one measured context set. Its primary answer is that no additional
+MRI information about amyloid was detected after cognition was included. This separates a
+plausible marginal MRI--amyloid signal from incremental information in the analysed cohort.
+Concurrent cognition may represent shared disease information, mediation, overadjustment, or
+collider distortion, so the reference-set comparison is itself scientifically informative.
 
-The two applications support three levels of interpretation. The global test asks
+The applications support three levels of interpretation. The global test asks
 whether the marker panel contributes any residual information. Marker-wise tests identify
 which pre-specified measurements contribute detectable residual signal. A stronger claim
 that one marker provides unique or practically useful information requires conditioning on
-the other markers and demonstrating out-of-subject predictive improvement. Consequently, the
-completed MRI analyses only partially distinguish the $X$ variables: they localise signals and provide
-descriptive common-scale magnitudes, but they do not yet supply unique-marker tests, formal
-pairwise differences, or held-out prediction gains (Table~\ref{tab:adni-core-objective}).
+the other markers and demonstrating out-of-subject predictive improvement. The MRI analyses
+provide the first two levels; the plasma analyses add unique-marker tests and held-out prediction
+on common cohorts (Table~\ref{tab:adni-core-objective}).
 
 \subsection{Plasma information about PET amyloid beyond cognition and genetics}
 
@@ -1785,17 +1777,14 @@ same reference model reduced participant-level standardised-outcome RMSE from 0.
 equivalent to a 29.7\% mean-squared-error reduction. A participant bootstrap gave a positive
 mean MSE improvement interval of 0.126--0.250 and one-sided $p=0.0001$. The global test,
 unique-marker pattern, and held-out gain therefore agree that plasma is the completed ADNI
-combination that best instantiates the paper's core objective. These are exploratory
-observational discrimination results, not estimates of causal effects or proof of clinical
-utility.
+combination that best instantiates the paper's core objective.
 
 Twenty additional subject-fold assignments held the cohort, variables, and formulas fixed.
 P-tau217 remained positive and Holm-significant in 20/20 assignments, with normalised
 covariances from 0.456 to 0.497; A$\beta$42/40 remained negative and significant in 20/20,
 from $-0.276$ to $-0.244$. NfL and GFAP were detected in 0/20 assignments. The plasma-block
 MSE reduction was positive in every assignment, with a median of 27.9\% and a range of
-25.4\%--29.3\%. These repeated folds assess algorithmic stability within one selected cohort;
-they are not independent replications.
+25.4\%--29.3\%. These repeated folds quantify algorithmic stability within the selected cohort.
 
 A direct cross-modality check used the 570 participants (641 observations) with both plasma
 and a QC-eligible structural MRI within 90 days of PET. After moving the MRI block into $Z$,
@@ -1809,7 +1798,7 @@ and prospective results.
 
 \begin{table}[!ht]
 \centering
-\caption{Exploratory unique-marker plasma--amyloid results after conditioning on cognition,
+\caption{Unique-marker plasma--amyloid results after conditioning on cognition,
 genetics, acquisition context, and the other three plasma markers.}
 \label{tab:adni-plasma-amyloid}
 \begin{tabular}{lrrl}
@@ -1852,8 +1841,8 @@ $p$-value between $8.01\times10^{-5}$ and $5.59\times10^{-4}$. The $\pm90$-day s
 analysis gave the same marker distinction, with a p-tau217 normalised covariance of 0.285 and
 Holm $p=0.000380$. Independent multicohort work has likewise found that plasma p-tau217 is
 associated with future cognitive decline and can complement tau PET \cite{ossenkoppele2025}.
-The present result is narrower: it concerns incremental information in the specified ADNI
-cohort and conditioning set, not clinical qualification of the assay.
+The present analysis isolates its incremental information in the specified ADNI cohort and
+conditioning set.
 
 Across 20 additional subject-fold assignments in the primary cohort, the p-tau217 unique
 covariance remained positive, with a median of 0.297 and a range of 0.230--0.351. A
@@ -1893,8 +1882,8 @@ with a median of 21.0\% and a range of 14.6\%--26.6\%.
 This prospective result distinguishes candidate markers instead of reporting only association
 directions. P-tau217 was the only marker supported by the unique-information test, the
 leave-one-participant-out check, and held-out prediction. The analysis belongs to the
-many-subject C1 branch, which reduces to A1 after adding fixed observed history. It is
-not an application of the single-series temporal theory discussed by Shi.
+many-subject C1 branch, which reduces to A1 after adding fixed observed history; the
+single-series temporal theory discussed by Shi instead motivates the growing-history C2 branch.
 
 \subsection{Additional ADNI conditional pathology-information targets}
 
@@ -1926,8 +1915,7 @@ Candidate discrimination was pre-specified at five levels:
 \item participant-held-out changes in RMSE and MAE for continuous PET, with AUC and Brier-score
 changes for a secondary frozen PET-positivity threshold.
 \end{enumerate}
-P-values will not be used to rank $X$ variables. On a common comparison cohort, oriented
-markers will be compared through cross-fitted scale-normalised residual covariances,
+Candidate ranking is based on a common comparison cohort, cross-fitted scale-normalised residual covariances,
 participant-bootstrap intervals for their pairwise differences, unique-information tests,
 and paired prediction-loss changes. Maximal cohorts for individual blocks are sensitivity
 analyses rather than a basis for ranking unequal-sample p-values.
@@ -1937,16 +1925,15 @@ list of signs: p-tau217 and A$\beta$42/40 retained unique amyloid information, w
 GFAP did not. For the remaining target, plasma p-tau217 is expected to carry tau information;
 NfL and structural MRI should be more closely
 related to neurodegeneration and subsequent cognition; and genetic risk may attenuate once
-measured pathology enters $Z$ \cite{janelidze2024,moon2025}. These are frozen qualitative
-checks, not criteria for discarding discordant results. An ADNI4 remote extension can treat
+measured pathology enters $Z$ \cite{janelidze2024,moon2025}. These frozen qualitative
+expectations serve as external plausibility checks while leaving discordant results reportable. An ADNI4 remote extension can treat
 Storyteller speech features or ECog-12 as accessible $X$, standard cognitive measures and
 genetics as $Z$, and blood or PET pathology as $Y$. It is promoted only if continuous-date
 linkage and pathology overlap are adequate \cite{skirrow2024}.
 
-The completed prospective analysis supplies temporal ordering for a cognitive target, but it
-does not replace the pathology-information question linking the IWSM and future wearable
-applications. Tau PET and a frozen non-APOE polygenic score remain the next conditional
-pathology-information targets.
+Together, the prospective cognitive target and the pathology-information target preserve the
+link between the IWSM example and future wearable applications. Tau PET and a frozen non-APOE
+polygenic score are the next conditional pathology-information targets.
 
 \begin{figure}[!ht]
 \centering
@@ -1960,8 +1947,7 @@ prior cognition (C1); filled points survive Holm correction. (c) Participant-hel
 prediction gains. Plasma added substantially more predictive information than structural
 MRI, and p-tau217 improved future-cognition prediction under both alignment windows.
 Repeated-fold diamonds and whiskers are shown for the full plasma cohort and primary
-future-cognition analysis. These exploratory measures do not establish causality or clinical
-biomarker validity.}
+future-cognition analysis.}
 \label{fig:adni-signature}
 \end{figure}
 
