@@ -47,8 +47,9 @@
 
 \title{Conditional Independence Testing beyond i.i.d. Data:\\
 A Taxonomy and Residual-Score Framework}
-\author{Qingzi Huo, Marco Simnacher, Xiaotian Xu, and Sonja Greven\\
-for the Alzheimer's Disease Neuroimaging Initiative}
+\author{Qingzi Huo, Marco Simnacher, Xiangnan Xu, and Sonja Greven\\
+for the Alzheimer's Disease Neuroimaging Initiative\thanks{A complete listing of ADNI
+investigators is provided in the Acknowledgements.}}
 \date{Working manuscript, 24 August 2026}
 
 \begin{document}
@@ -85,14 +86,16 @@ sparse latent-context estimation and incomplete-history reductions. A supplement
 shows how Case-B calibration depends on the accuracy of an independently estimated subject
 context and provides local-power curves for observed Case B and complete-history C1. In ADNI
 applications, MRI, plasma biomarkers, amyloid PET, cognition, genetics, and acquisition
-variables instantiate Case A with many participants and sparse visits. The analyses show how
+variables instantiate A1 and its observed-context Case-B and bounded-history C1 reductions
+with many participants and sparse visits. The analyses show how
 incremental-information conclusions change with the reference set and identify p-tau217 and
 A$\beta$42/40 as plasma markers retaining information about PET amyloid beyond cognition,
 demographics, APOE, and acquisition context. A prospective observed-history analysis further
 identified p-tau217 as the only plasma marker retaining unique information about future
 ADAS-Cog13. Repeating the subject-fold assignment preserved the plasma--amyloid marker
-distinction in all 20 assignments and the prospective p-tau217 direction in all 20, although
-one prospective split crossed the multiplicity-adjusted 0.05 threshold. Cases D and E, and
+distinction in all 20 assignments and the prospective p-tau217 direction in all 20. The
+prospective p-tau217 test remained multiplicity-adjusted significant in 19 of 20 assignments.
+Cases D and E, and
 single-series temporal inference, remain future work.
 \end{abstract}
 
@@ -130,28 +133,21 @@ out subjects exclude subject-specific BLUPs in a population analysis, and infere
 empirical variance of complete subject scores. A Gaussian multiplier extends the construction
 to several candidate markers.
 
-The three contributions are:
-\begin{enumerate}[leftmargin=*]
-\item \textbf{A problem map for non-i.i.d. CIT.} We distinguish five nulls (Cases A--E),
-three asymptotic regimes inside Case A, and observed versus latent subject information inside
-Case B. The map makes the required domain knowledge and the unsolved identification problems
-explicit.
-\item \textbf{A residual-score framework with an explicit scope.} We develop the cluster
-construction and high-level rate conditions for Case A1. Case B with observed subject
-information and Case C1 with complete bounded history can be reduced to Case A1 by enlarging
-the conditioning set. Estimated or latent subject information, growing-history Case C2, and
-double asymptotics require additional assumptions and are presented separately.
-The nuisance learner may be a GAMM, random forest, kernel method, neural network, or a
-pre-trained embedding, provided the relevant prediction and leakage conditions hold.
-\item \textbf{Evidence across the map.} Existing simulations evaluate Case A and expose a
-random-slope limitation and a failed sparse-BLUP construction. New simulations isolate the
-roles of observed or estimated subject context and complete or incomplete history, quantify
-the proxy-accuracy gradient for generated subject context, and supply local-power curves. ADNI
-analyses instantiate the many-subject, sparse-visit regime and evaluate whether imaging and
-plasma measurements add information beyond explicitly named clinical, historical, and genetic
-reference sets. A prospective application links this question to future cognitive status,
-and repeated subject-fold analyses assess dependence on one cross-fitting split.
-\end{enumerate}
+The article makes three contributions. First, it provides a problem map for non-i.i.d. CIT:
+five nulls (Cases A--E), three asymptotic regimes inside Case A, and an explicit distinction
+between observed, estimated, and latent subject information in Case B. The map identifies the
+domain knowledge needed to state the null and separates sampling problems from unresolved
+identification problems. Second, it develops a residual-score construction and high-level
+rate conditions for Case A1. Observed Case-B information and complete bounded Case-C1 history
+reduce to A1 after enlarging the conditioning set; estimated or latent subject information,
+growing-history C2, and double asymptotics require additional assumptions. GAMMs, random
+forests, kernel methods, neural networks, and pre-trained embeddings can serve as nuisance
+learners when the stated prediction and leakage conditions hold. Third, simulations expose
+the calibration boundary of the construction and quantify the effects of subject-context
+accuracy and history completeness. The ADNI analyses ask whether imaging and plasma
+measurements add information beyond named clinical, historical, genetic, and acquisition
+variables, while prospective and repeated-fold analyses assess candidate discrimination and
+split sensitivity.
 
 Two boundaries are maintained throughout. First, the scalar residual score targets an
 expected conditional covariance: conditional independence implies a zero target, but the
@@ -180,6 +176,11 @@ requirements. Non-i.i.d. extensions must add a second layer: a valid approximati
 dependent score process. This is not a cosmetic variance correction. For example, an
 i.i.d. bootstrap for kernel independence can fail for random processes even when the
 dependence statistic itself is unchanged \cite{chwialkowski2014}.
+Cluster-aware cross-fitting and variance estimation have been developed for orthogonal
+estimands under multiway clustering \cite{chiang2022}; that work supplies an important
+sampling precedent but does not test conditional independence. Nonparametric time-series CIT
+has also been constructed from conditional-distribution moment restrictions and a multiplier
+bootstrap \cite{songwei2021}.
 Shi's GTCM uses stability and weak temporal dependence for a history-conditioned predictive
 null \cite{shi2025}; Wieck-Sosa, Haddad, and Ramdas develop time-varying regression,
 time-varying covariance estimation, and Gaussian approximation for a single nonstationary
@@ -215,6 +216,8 @@ Kernel CI and KCI \cite{fukumizu2007,zhang2011} & RKHS conditional covariance op
 GCM and WGCM \cite{shahpeters,scheidegger2022} & products of conditional-mean residuals, with optional weights & independent triples & nuisance prediction rates and score CLT & algebraic basis for the A1 score \\
 Generative CIT \cite{bellot2019} & draws from an estimated conditional null & independent, potentially high dimensional & conditional-distribution approximation & alternative nuisance engine; non-i.i.d. calibration still required \\
 Random-process HSIC \cite{chwialkowski2014} & instantaneous unconditional process independence & one dependent process & process assumptions and dependent-data bootstrap & shows why i.i.d. resampling fails \\
+Multiway cluster DML \cite{chiang2022} & orthogonal score for a structural parameter & multiway clustered observations & cluster-aware cross-fitting and cluster-robust variance & sampling precedent, but not a CIT \\
+Time-series conditional moments \cite{songwei2021} & conditional-distribution moment restrictions & one dependent series & temporal regularity and multiplier bootstrap & specialised A2/C2 alternative \\
 GTCM \cite{shi2025} & predictive residual score given growing observed history & one long sequence & regression stability and weak temporal dependence & A2/C2 \\
 Time-varying single-series CIT \cite{wiecksosa2025} & nonlinear CI score & one nonstationary series & time-varying nuisance and covariance approximation & A2/C2 \\
 DNCIT \cite{simnacher2024} & learned representation followed by a downstream CIT & high-dimensional images & representation training must not create conditional dependence & orthogonal to sampling; composable with A--C \\
@@ -379,7 +382,11 @@ f_0(z)=\E(X_{it}\mid Z_{it}=z),
 \qquad
 g_0(z)=\E(Y_{it}\mid Z_{it}=z),
 \]
-and the marginal residuals
+where the Case-A1 theorem assumes that these conditional-mean functions are shared across
+subjects and visits. Clusters may still differ in visit count, conditional variance, and
+within-subject dependence. Subject- or visit-specific conditional means require indexed
+nuisance targets and uniform versions of the prediction-rate conditions below. Define the
+marginal residuals
 \[
 \varepsilon_{it}=X_{it}-f_0(Z_{it}),
 \qquad
@@ -394,18 +401,21 @@ The equal-subject choice is $w_{it}=m_i^{-1}$. Define the oracle subject score
 S_i=\sum_{t=1}^{m_i}w_{it}\varepsilon_{it}\xi_{it}.
 \label{eq:oracle-score}
 \end{equation}
-The corresponding population parameter is
+For independent, potentially non-identical clusters, the corresponding average population
+parameter is
 \begin{equation}
-\rho=\E(S_i)
-=\E\left[\sum_{t=1}^{m_i}w_{it}
+\rho_N=\frac1N\sum_{i=1}^N\E(S_i)
+=\frac1N\sum_{i=1}^N\E\left[\sum_{t=1}^{m_i}w_{it}
 \{X_{it}-f_0(Z_{it})\}\{Y_{it}-g_0(Z_{it})\}\right].
 \label{eq:rho}
 \end{equation}
 Under \eqref{eq:pop-null}, each same-visit conditional covariance is zero and hence
-$\rho=0$.
+$\rho_N=0$, provided the observation and weighting process satisfies
+Assumption~\ref{ass:weights}. For identically distributed clusters, write the common value as
+$\rho=\E(S_i)$.
 
 \begin{remark}[What is and is not tested]
-Conditional independence implies $\rho=0$, but the converse does not hold in general.
+Conditional independence implies $\rho_N=0$, but the converse does not hold in general.
 The scalar GCM is therefore a valid conditional-independence test with power against
 alternatives for which the weighted expected conditional covariance is non-zero. Richer
 transformations or multivariate scores are needed to detect conditional dependence that
@@ -577,18 +587,27 @@ B_i=\sum_t w_{it}\Delta^f_{it}\Delta^g_{it}.
 \subsection{High-level assumptions}
 
 \begin{assumption}[Independent clusters]
+\label{ass:clusters}
 The subject vectors $\mathcal O_1,\ldots,\mathcal O_N$ are independent. They may be
-non-identically distributed in a triangular array, provided the following moment and
-variance conditions hold uniformly.
+non-identically distributed in a triangular array through their visit counts, residual
+distributions, and within-cluster dependence. The conditional-mean functions $f_0$ and $g_0$
+are shared across the array, and the following moment and variance conditions hold uniformly.
 \end{assumption}
 
-\begin{assumption}[Weights and cluster size]
-The weights are nonnegative and satisfy $\sum_t w_{it}=1$. Either
+\begin{assumption}[Observation process, weights, and cluster size]
+\label{ass:weights}
+The observed visit set and the weights are fixed by design or are measurable with respect to
+pre-outcome information included in the scientific context. The weights are nonnegative and
+satisfy $\sum_t w_{it}=1$. Under $H_0^{\mathrm{pop}}$, the resulting weighted oracle score is
+centred, $\E(S_i)=0$. This condition holds automatically for a fixed visit schedule and fixed
+weights under the visit-level null. An outcome-dependent visit process instead requires a
+separate argument that centring is preserved after selection. Either
 $\max_i m_i\leq m_{\max}<\infty$, or growing clusters satisfy a Lindeberg condition that
 prevents a single subject from dominating the total score.
 \end{assumption}
 
 \begin{assumption}[Oracle centering]
+\label{ass:centering}
 For every visit,
 \[
 \E(\varepsilon_{it}\mid Z_{it})=0,
@@ -615,14 +634,17 @@ reduces to $0<\Var(S_i)<\infty$ plus a suitable $2+\delta$ moment.
 \end{assumption}
 
 \begin{assumption}[Cluster cross-fitting]
+\label{ass:crossfit}
 For every held-out cluster $i$, the functions
 $\widehat f^{(-k(i))}$ and $\widehat g^{(-k(i))}$ are estimated without using any
 observation from subject $i$. Conditional on the corresponding fold-specific training data,
 the prediction errors at a
 held-out visit are functions of the held-out $Z_{it}$, not of held-out $X_{it}$ or $Y_{it}$.
+The number of folds $K$ is fixed and $n_k/N\to\pi_k\in(0,1)$ for every fold.
 \end{assumption}
 
 \begin{assumption}[Product-rate condition]
+\label{ass:product-rate}
 Define the cluster-weighted mean squared prediction errors
 \[
 A_f=\frac1N\sum_{i=1}^N\sum_{t=1}^{m_i}w_{it}(\Delta^f_{it})^2,
@@ -641,7 +663,15 @@ $\sqrt N\,r_fr_g=\op(1)$.
 \begin{assumption}[Cluster-weighted cross-term control]
 \label{ass:cross-term}
 Let $n_k=|I_k|$ and let $\calT_k$ denote the observations from subjects outside fold $I_k$,
-together with the fold assignment. For fixed $K$, assume
+together with the fold assignment. Conditional on $\calT_k$, the held-out cluster terms are
+independent and satisfy
+\[
+\E(C_{g,i}\mid\calT_k)=0,
+\qquad
+\E(C_{f,i}\mid\calT_k)=0,
+\qquad i\in I_k.
+\]
+Assume further that
 \begin{align}
 B_{g,k}^{\mathrm{cl}}
 &=
@@ -695,19 +725,20 @@ and a law of large numbers holds for $S_i^2$. Consequently,
 where $\overline S_N^0=N^{-1}\sum_iS_i$.
 \end{assumption}
 
-\subsection{Null theorem and proof roadmap}
+\subsection{Null theorem and proof}
 
-\begin{theorem}[Proposed null validity of cluster GCM]
-Under Assumptions 4.1--4.8 and $H_0^{\mathrm{pop}}$, the statistic in
+\begin{theorem}[Asymptotic null validity of cluster GCM]
+\label{thm:null}
+Under Assumptions~\ref{ass:clusters}--\ref{ass:variance} and
+$H_0^{\mathrm{pop}}$, the statistic in
 \eqref{eq:test-statistic} satisfies
 \[
 T_N\xrightarrow{d}N(0,1).
 \]
-If all assumptions hold uniformly over a class of null distributions, then the convergence is
-uniform and the resulting test has uniformly asymptotic level $\alpha$ over that class.
+Consequently, the two-sided test has pointwise asymptotic level $\alpha$.
 \end{theorem}
 
-\begin{proof}[Proof roadmap]
+\begin{proof}
 Using \eqref{eq:cluster-decomposition},
 \begin{align}
 \sqrt N\,\overline S_N
@@ -721,15 +752,15 @@ Using \eqref{eq:cluster-decomposition},
 \frac1{\sqrt N}\sum_{i=1}^NB_i.
 \label{eq:cluster-numerator-decomp}
 \end{align}
-The proof consists of four steps.
-
 \textbf{Step 1: Oracle cluster CLT.}
-Under the null, $\E S_i=0$. Assumption~\ref{ass:oracle-clt} gives
+Assumptions~\ref{ass:weights} and \ref{ass:centering} give $\E S_i=0$ under
+$H_0^{\mathrm{pop}}$. The Lindeberg--Feller central limit theorem for independent triangular
+arrays, invoked through Assumption~\ref{ass:oracle-clt}, gives
 \[
 \frac{N^{-1/2}\sum_iS_i}{\sigma_N}\xrightarrow{d}N(0,1).
 \]
-Within-subject dependence is entirely contained in $S_i$ and does not violate the CLT because
-subjects are independent.
+All within-subject dependence is contained in $S_i$; the independent units in this limit are
+the complete clusters.
 
 \textbf{Step 2: Product-bias term.}
 By Cauchy--Schwarz and $\sum_t w_{it}=1$,
@@ -747,27 +778,106 @@ By Cauchy--Schwarz and $\sum_t w_{it}=1$,
 \end{align*}
 
 \textbf{Step 3: Two first-order cross terms.}
-For each fold $k$, cluster cross-fitting ensures that, conditional on $\calT_k$, held-out
-nuisance functions do not depend on held-out responses. Since
-$\E(\varepsilon_{it}\mid Z_{it})=0$ and
-$\E(\xi_{it}\mid Z_{it})=0$, each cross term is centred after conditioning on the
-appropriate fold-specific training information. Subjects within $I_k$ are conditionally
-independent given $\calT_k$, and Assumption~\ref{ass:cross-term} gives
+For each fold $k$, Assumptions~\ref{ass:crossfit} and \ref{ass:cross-term} imply conditional
+centering and independence of the held-out cluster terms. Therefore
+\begin{align*}
+\E\left[\left.
+\left\{\frac1{\sqrt{n_k}}\sum_{i\in I_k}C_{g,i}\right\}^2
+\right|\calT_k\right]
+&=\frac1{n_k}\sum_{i\in I_k}\E(C_{g,i}^2\mid\calT_k)
+=B_{g,k}^{\mathrm{cl}}=\op(1),\\
+\E\left[\left.
+\left\{\frac1{\sqrt{n_k}}\sum_{i\in I_k}C_{f,i}\right\}^2
+\right|\calT_k\right]
+&=B_{f,k}^{\mathrm{cl}}=\op(1).
+\end{align*}
+Conditional Markov's inequality yields
 \[
 \frac1{\sqrt{n_k}}\sum_{i\in I_k}C_{g,i}=\op(1),
 \qquad
 \frac1{\sqrt{n_k}}\sum_{i\in I_k}C_{f,i}=\op(1)
 \]
-by conditional Chebyshev's inequality. Summing the fixed number of folds with weights
-$\sqrt{n_k/N}$ yields the two $N^{-1/2}$ results required in
-\eqref{eq:cluster-numerator-decomp}. This foldwise argument avoids conditioning jointly on
-overlapping training samples.
+for every $k$. Since $K$ is fixed and $n_k/N\to\pi_k$, summing these foldwise terms with
+weights $\sqrt{n_k/N}$ gives
+\[
+N^{-1/2}\sum_iC_{g,i}=\op(1),
+\qquad
+N^{-1/2}\sum_iC_{f,i}=\op(1).
+\]
+This foldwise argument never conditions jointly on overlapping training samples.
 
 \textbf{Step 4: Studentisation.}
-Assumption~\ref{ass:variance} implies
-$\widehat\sigma_N^2\to_{\mathbb P}\sigma^2$.
-Slutsky's theorem completes the proof.
+Assumption~\ref{ass:variance} and its law of large numbers give
+\[
+\widehat\sigma_N^2
+=\frac1N\sum_i(S_i-\overline S_N^0)^2+\op(1)
+=\sigma_N^2+\op(1)
+\xrightarrow{\mathbb P}\sigma^2.
+\]
+Steps 2 and 3 make every estimated-nuisance remainder in
+\eqref{eq:cluster-numerator-decomp} $\op(1)$. Combining Step 1 with the preceding variance
+limit and applying Slutsky's theorem gives $T_N\Rightarrow N(0,1)$. The stated level result
+follows from continuity of the standard normal distribution.
 \end{proof}
+
+\subsection{Fixed-marker global test}
+
+The application tests a finite, pre-specified marker set jointly. Write
+$\bm S_i=(S_{i1},\ldots,S_{ip})^\top$ for the oracle subject-score vector and
+$\widehat{\bm S}_i$ for its cross-fitted version. Let
+\[
+\Sigma_N=\frac1N\sum_{i=1}^N\Cov(\bm S_i),
+\qquad
+\widehat\Sigma_N=\frac1N\sum_{i=1}^N
+(\widehat{\bm S}_i-\overline{\widehat{\bm S}})
+(\widehat{\bm S}_i-\overline{\widehat{\bm S}})^\top,
+\]
+and let $D_N$ and $\widehat D_N$ be their diagonal matrices.
+
+\begin{proposition}[Gaussian multiplier validity for a fixed marker set]
+\label{prop:multiplier}
+Suppose $p$ is fixed, the joint null holds for all $p$ marker scores, and the componentwise
+versions of Assumptions~\ref{ass:clusters}--\ref{ass:variance} hold. Assume additionally a
+multivariate Lindeberg condition,
+$\Sigma_N\to\Sigma$ for a positive-definite matrix $\Sigma$, and
+$\widehat\Sigma_N-\Sigma_N=\op(1)$ entrywise. Then
+\[
+\bm T_N=\sqrt N\,\widehat D_N^{-1/2}
+\overline{\widehat{\bm S}}
+\xrightarrow{d}N_p(\bm 0,R),
+\qquad
+R=D^{-1/2}\Sigma D^{-1/2},
+\]
+where $D=\operatorname{diag}(\Sigma)$. Conditional on the data, the shared-subject Gaussian
+multiplier vector
+\[
+\bm T_N^*=\frac1{\sqrt N}\widehat D_N^{-1/2}
+\sum_{i=1}^Ne_i(\widehat{\bm S}_i-\overline{\widehat{\bm S}}),
+\qquad e_i\stackrel{\mathrm{i.i.d.}}{\sim}N(0,1),
+\]
+consistently estimates the null law of $\max_{j\leq p}|T_{Nj}|$. Consequently, the
+multiplier global test is asymptotically level $\alpha$ when its Monte Carlo size tends to
+infinity after $N$.
+\end{proposition}
+
+\begin{proof}
+For every fixed $a\in\R^p$, the scalar proof of Theorem~\ref{thm:null} applied to
+$a^\top\bm S_i$ makes the cross-fitted remainder $\op(1)$ and gives a Lindeberg--Feller
+limit. The Cram\'er--Wold device therefore yields
+$\sqrt N\,\overline{\widehat{\bm S}}\Rightarrow N_p(\bm0,\Sigma)$.
+Entrywise covariance consistency and positive definiteness imply
+$\widehat D_N\to_{\mathbb P}D$, so Slutsky's theorem gives the stated limit for $\bm T_N$.
+Conditional on the observed scores, $\bm T_N^*$ is exactly Gaussian with covariance
+$\widehat R_N=\widehat D_N^{-1/2}\widehat\Sigma_N\widehat D_N^{-1/2}$.
+Because $\widehat R_N\to_{\mathbb P}R$ and the maximum of a non-degenerate finite Gaussian
+vector has a continuous distribution, the conditional distribution of
+$\max_j|T_{Nj}^*|$ converges to the same limit as $\max_j|T_{Nj}|$. Monte Carlo convergence
+then gives the final statement.
+\end{proof}
+
+This proposition covers the fixed marker panels used below. A growing marker dictionary
+requires high-dimensional moment, rate, covariance-estimation, and anti-concentration
+conditions beyond the fixed-$p$ argument.
 
 \subsection{Alternative theorem and power}
 
@@ -780,17 +890,34 @@ Under a general alternative, define
 For identically distributed clusters, $\rho_N=\rho$ and
 $\sigma_{N,A}^2=\Var(S_i)$.
 
-\begin{theorem}[Proposed asymptotic linearity under alternatives]
-Assume cluster cross-fitting and the analogues of Assumptions 4.4--4.8 for the centred
-oracle scores $S_i-\E S_i$. Then
+\begin{theorem}[Asymptotic linearity under alternatives]
+\label{thm:alternative}
+Let $\mu_{i,N}=\E(S_i)$ and $\rho_N=N^{-1}\sum_i\mu_{i,N}$. Assume the analogues of
+Assumptions~\ref{ass:oracle-clt}--\ref{ass:variance} for the centred oracle scores
+$S_i-\mu_{i,N}$, and assume
+\[
+\frac1N\sum_{i=1}^N(\mu_{i,N}-\rho_N)^2=o(1).
+\]
+Then
 \[
 \frac{\sqrt N(\overline S_N-\rho_N)}{\widehat\sigma_N}
 \xrightarrow{d}N(0,1).
 \]
-Consequently, fixed alternatives with $\rho\neq0$ are detected consistently. Under local
-alternatives $\rho_N=c/\sqrt N$, the limiting distribution is normal with mean
-$c/\sigma$ and variance one.
+Consequently, alternatives with $\sqrt N|\rho_N|\to\infty$ are detected consistently. If
+$\sqrt N\rho_N\to c$ and $\widehat\sigma_N\to_{\mathbb P}\sigma_A\in(0,\infty)$, then
+$T_N\Rightarrow N(c/\sigma_A,1)$.
 \end{theorem}
+
+\begin{proof}
+Apply the four steps in the proof of Theorem~\ref{thm:null} to
+$S_i-\mu_{i,N}$. The assumed mean-heterogeneity condition makes the between-cluster mean
+component of the empirical score variance negligible, so the studentising variance has the
+same limit as the centred oracle variance. Thus
+$\sqrt N(\overline S_N-\rho_N)/\widehat\sigma_N\Rightarrow N(0,1)$.
+For $T_N$, add $\sqrt N\rho_N/\widehat\sigma_N$ and apply Slutsky's theorem. This term
+diverges in absolute value under the first stated alternative and converges to
+$c/\sigma_A$ under the local alternative.
+\end{proof}
 
 \begin{remark}[Why cross-fitting is more important under alternatives]
 Without splitting, the regression estimate of $g_0$ is a function of the same $Y$ values used
@@ -1569,8 +1696,10 @@ Case C1 complete-history power & 0.602 & 0.996 & 1.000 & 1.000 & \\
 \includegraphics[width=\textwidth]{figure2_simulation_boundaries.pdf}
 \caption{Simulation evidence for the framework boundaries. (a) Subject-score and oracle
 calculations remain close to the nominal level, while applying the same cross-fitted residual
-products as independent visits inflates rejection. The dashed and dotted lines mark 0.05 and
-the frozen 0.075 upper-limit criterion. (b) Local power for the A1 subject-score, observed
+products as independent visits inflates rejection. The dashed line marks the nominal 0.05
+level. The dotted 0.075 line is the frozen maximum acceptable upper confidence limit: a null
+setting passes only when the upper end of its exact 95\% interval lies at or below that line.
+(b) Local power for the A1 subject-score, observed
 Case-B, and complete-history C1 constructions; the zero-effect B/C1 points are their frozen
 null anchors. (c) Case-B target-null rejection as independently measured subject context
 becomes more accurate; this curve is generator-specific. (d) Information-set diagnostics.
@@ -1636,7 +1765,9 @@ Subjects, rather than visits, were assigned to five folds. Held-out predictions 
 subject random effect, as required for population-level Design A. Scores used
 $w_{it}=1/m_i$, giving every subject equal total weight. The global three-marker test used
 9,999 Gaussian multiplier draws; marker-wise $p$-values used a normal reference and Holm
-correction.
+correction. Holm adjustment was applied within each pre-specified marker family. The separate
+ADNI targets and alignment windows are exploratory analyses, and no across-application
+family-wise error claim is made.
 
 The date window, minimum visit count, covariates, folds, seed, weights, and inferential rules
 were specified before the first GCM analysis. The bounded-visit simulations did not support
@@ -1944,10 +2075,10 @@ demographics, APOE, acquisition context, and the other plasma markers; blue bars
 Holm correction. Black diamonds and whiskers show the median and range across 20 additional
 subject-fold assignments. (b) Unique plasma information about future ADAS-Cog13 after current and
 prior cognition (C1); filled points survive Holm correction. (c) Participant-held-out
-prediction gains. Plasma added substantially more predictive information than structural
-MRI, and p-tau217 improved future-cognition prediction under both alignment windows.
-Repeated-fold diamonds and whiskers are shown for the full plasma cohort and primary
-future-cognition analysis.}
+prediction gains. In the common cohort, plasma added substantially more predictive information
+than structural MRI; p-tau217 also improved future-cognition prediction under both alignment
+windows. A repeated-fold diamond and whisker are shown for the primary future-cognition
+analysis.}
 \label{fig:adni-signature}
 \end{figure}
 
@@ -1996,12 +2127,13 @@ private wearable application has the same scientific form---whether device signa
 outcome information beyond recorded activity---but no private wearable data or result enters
 this article.
 
-Three limitations remain central. The A1 result is currently a high-level theorem and proof
-roadmap rather than a submission-complete technical proof. The scalar residual covariance is
-not omnibus against conditional-dependence alternatives with zero conditional covariance.
-Finally, the ADNI findings are observational, complete-case, and exploratory; they establish
-neither causality nor clinical biomarker qualification. These limits determine the next
-theoretical and empirical steps rather than changing the five-case taxonomy.
+Three limitations remain central. The A1 theorem is expressed through high-level nuisance-rate
+and observation-process conditions; learner-specific corollaries must verify them for each
+implementation. The scalar residual covariance is not omnibus against conditional-dependence
+alternatives with zero conditional covariance. Finally, the ADNI findings are observational,
+complete-case, and exploratory; they establish neither causality nor clinical biomarker
+qualification. These limits determine the next theoretical and empirical steps rather than
+changing the five-case taxonomy.
 
 % ============================================================
 \section{Reproducibility, data availability, and governance}
@@ -2016,7 +2148,9 @@ contained 4,406 rows from 647 subjects; its SHA-256 hash begins
 ADNI source and participant-level derived files are excluded from version control and cannot
 be redistributed. Reproduction of the application requires separately approved ADNI access
 and the documented source-table versions. The plasma--amyloid analysis used the 12 August
-2026 UPENN plasma and UC Berkeley amyloid-PET Study Files snapshots. Restricted rows were
+2026 UPENN plasma and UC Berkeley amyloid-PET Study Files snapshots. Plasma analytes were
+treated as continuous research-use-only measures; no FDA-cleared Lumipulse ratio threshold
+or clinical diagnostic cut-off was applied. Restricted rows were
 processed locally; only aggregate, disclosure-checked cohort, test, unique-marker, and
 prediction summaries are retained in the public repository. Its analytic table contained
 758 rows from 664 participants; the SHA-256 begins \texttt{d218c64b6c0d}. Remaining analyses
@@ -2053,15 +2187,18 @@ ADNI source data are available to approved investigators through the Image and D
 subject to the ADNI Data Use Agreement and publication policy. The present work is a
 secondary analysis of de-identified data and involved no new participant contact or data
 collection. ADNI study protocols were approved by the participating sites and written
-informed consent was obtained under those protocols \cite{weiner2010}.
+informed consent was obtained under those protocols \cite{weiner2010}. Journal submission
+will follow ADNI Data and Publications Committee review requirements.
 
 % ============================================================
 \section{Limitations and next directions}
 
-The first priority is a submission-complete proof of the A1 result, including the oracle
-cluster central limit theorem, cross-fitted remainder bounds, score-variance consistency,
-and fixed and local alternatives. Any response to the original Stage-2b random-slope failure
-must be evaluated under a newly frozen method version rather than tuned against that row.
+The A1 theorem uses high-level shared-mean, observation-process, prediction-rate, and
+variance conditions. Learner-specific corollaries still need to verify these conditions for
+particular GAMM, kernel, or neural nuisance estimators. In particular, an outcome-dependent
+visit process is covered only when weighted score centring can be justified after selection.
+Any response to the original Stage-2b random-slope failure must be evaluated under a newly
+frozen method version rather than tuned against that row.
 
 A2 and A3 require separate theory. A2 needs a temporal score process, weak-dependence or
 martingale conditions, and long-run variance or self-normalised calibration. A3 must state
@@ -2098,7 +2235,7 @@ cohort validation. Only aggregate, disclosure-checked outputs may enter public a
 \toprule
 Case & Scientific target & Theoretical status & Empirical evidence & Interpretation \\
 \midrule
-A1 & state-level, many subjects & developed proof programme under cluster rates & Stage 2a; six stress settings; ADNI & primary current scope \\
+A1 & state-level, many subjects & high-level theorem and proof under cluster rates & Stage 2a; six stress settings; ADNI & primary current scope \\
 A2 & state/predictive, long sequence & requires temporal theory & Shi/GTCM comparison only & not implemented here \\
 A3 & state-level, both dimensions grow & requires double asymptotics & none & future theory \\
 B & state-level given $\theta_i$ & observed case reduces to A; latent case conditional & observed context, proxy-quality gradient, and local power & heuristic if estimated \\
@@ -2166,15 +2303,28 @@ K. Chwialkowski and A. Gretton.
 \newblock In \emph{Proceedings of the 31st International Conference on Machine Learning},
 volume 32 of \emph{Proceedings of Machine Learning Research}, pages 1422--1430, 2014.
 
+\bibitem{chiang2022}
+H. D. Chiang, K. Kato, Y. Ma, and Y. Sasaki.
+\newblock Multiway cluster robust double/debiased machine learning.
+\newblock \emph{Journal of Business \& Economic Statistics}, 40(3):1046--1056, 2022.
+\newblock doi:10.1080/07350015.2021.1895815.
+
+\bibitem{songwei2021}
+X. Song and H. Wei.
+\newblock Nonparametric tests of conditional independence for time series.
+\newblock arXiv:2110.04847, 2021.
+\newblock \url{https://arxiv.org/abs/2110.04847}.
+
 \bibitem{huo2026}
 Q. Huo, M. Simnacher, X. Xu, and S. Greven.
 \newblock Extending the generalised covariance measure for conditional independence testing in repeated-measures data.
 \newblock In \emph{Proceedings of the 40th International Workshop on Statistical Modelling}, 2026.
 
 \bibitem{shi2025}
-J. Shi.
+H. Shi.
 \newblock Conditional independence testing in time series: a primer.
 \newblock Statistical Science Seminar, University College London, 5 February 2025.
+\newblock \url{https://www.ucl.ac.uk/mathematical-physical-sciences/statistical-science-seminars-2024-25}.
 
 \bibitem{wiecksosa2025}
 M. Wieck-Sosa, M. F. C. Haddad, and A. Ramdas.
@@ -2207,7 +2357,8 @@ A. J. Saykin, A. J. Schwarz, and the Alzheimer's Disease Neuroimaging Initiative
 S. Janelidze et al.
 \newblock Plasma phosphorylated tau 217 and A$\beta$42/40 to predict early brain
 A$\beta$ accumulation in people without cognitive impairment.
-\newblock \emph{JAMA Neurology}, 81(9):947--958, 2024.
+\newblock \emph{JAMA Neurology}, 81(9):947--957, 2024.
+\newblock doi:10.1001/jamaneurol.2024.2619.
 
 \bibitem{ashton2022}
 N. J. Ashton et al.
@@ -2230,7 +2381,8 @@ H. Moon, X. Chen, and the Alzheimer's Disease Neuroimaging Initiative.
 C. Skirrow et al.
 \newblock Storyteller in ADNI4: application of an early Alzheimer's disease screening tool
 using brief, remote, and speech-based testing.
-\newblock \emph{Alzheimer's \& Dementia}, 20(10):7273--7290, 2024.
+\newblock \emph{Alzheimer's \& Dementia}, 20(10):7248--7262, 2024.
+\newblock doi:10.1002/alz.14206.
 
 \end{thebibliography}
 

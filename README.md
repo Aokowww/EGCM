@@ -2,10 +2,9 @@
 
 This repository contains a taxonomy and residual-score framework for
 conditional-independence testing (CIT) with non-i.i.d. data, together with the
-code used for its simulation checks and exploratory ADNI analyses.  The
-branch for which a proof programme is developed is the
-many-independent-subject regime; the method changes the unit of inference
-from visits to subjects.
+code used for its simulation checks and exploratory ADNI analyses. The
+theoretically developed branch is the many-independent-subject regime; the
+method changes the unit of inference from visits to subjects.
 
 The earlier thesis implementation is preserved in the
 [`v1.0-thesis-legacy`](https://github.com/Aokowww/EGCM/tree/v1.0-thesis-legacy)
@@ -83,8 +82,11 @@ The scalar test targets a residual covariance. Conditional independence
 implies a zero target, but a zero target alone does not establish conditional
 independence.
 
-The theorem statements for the new cluster-GCM method remain proposed
-results with a proof programme. They are not presented as completed theorems.
+The article proves the scalar A1 result under stated high-level
+observation-process, nuisance-rate, cross-term, and variance conditions and
+gives a fixed-marker Gaussian multiplier proposition. These results do not
+automatically verify the assumptions for every nuisance learner; a concrete
+GAMM, kernel, or neural implementation must satisfy the stated conditions.
 
 ## Simulation evidence
 

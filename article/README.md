@@ -13,7 +13,8 @@ From `article/source`, compile with:
 tectonic --outdir ../compiled main.tex
 ```
 
-The manuscript distinguishes established results from proposed theory and
-heuristic extensions. ADNI is restricted-access data; only reviewed aggregate
-results are included in this repository. No participant-level records are
-published here.
+The manuscript proves the A1 scalar and fixed-marker multiplier results under
+stated high-level conditions, while learner-specific verification and the B/C
+heuristics are labelled separately. ADNI is restricted-access data; only
+reviewed aggregate results are included in this repository. No participant-level
+records are published here.
